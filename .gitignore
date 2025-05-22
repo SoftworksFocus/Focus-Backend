@@ -1,0 +1,48 @@
+bin/
+obj/
+/packages/
+riderModule.iml
+/_ReSharper.Caches/
+## Compilação
+bin/
+obj/
+
+## Configurações locais de usuário (IDE)
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Logs
+*.log
+
+## Sistema Operacional
+.DS_Store
+Thumbs.db
+
+## Visual Studio Code
+.vscode/
+
+## Rider
+.idea/
+
+## ASP.NET Core - arquivos sensíveis e ambiente
+appsettings.Production.json
+appsettings.Staging.json
+secrets.json
+
+## Banco de dados local (se usar SQLite ou arquivos temporários)
+*.db
+*.sqlite
+
+## Publicações
+publish/
+
+## Teste de cobertura
+coverage/
+TestResults/
+*.coverage
+*.coveragexml
+
+## Docker
+**/docker-compose.override.yml
