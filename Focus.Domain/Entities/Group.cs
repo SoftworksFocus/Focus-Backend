@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Focus.Domain.Entities
 {
-    public class Group
+    public class Group : BaseEntity
     {
         public string Name { get; set; } = null!;
 
