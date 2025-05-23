@@ -46,3 +46,7 @@ TestResults/
 
 ## Docker
 **/docker-compose.override.yml
+
+.vs
+.vs/
+.vs\
