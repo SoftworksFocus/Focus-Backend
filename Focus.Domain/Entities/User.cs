@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-
-namespace Focus.Domain.Entities
+﻿namespace Focus.Domain.Entities
 {
     public class User : BaseEntity
     {
@@ -15,8 +8,12 @@ namespace Focus.Domain.Entities
 
         public string Password { get; set; } = null!;
 
-        public List<Group> OwnedGroups { get; set; }
-
         public string? Description { get; set; }
+
+        public IEnumerable<Group>? OwnedGroups { get; set; }
+
+        public List<UserGroup>? Groups { get; set; } 
+        
+        public List<Activity>? Activities { get; set; }
     }
 }

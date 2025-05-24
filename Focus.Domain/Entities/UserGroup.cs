@@ -8,14 +8,13 @@ namespace Focus.Domain.Entities
 {
     public class UserGroup : BaseEntity
     {
-        public User User { get; set; }
+        public int UserId { get; set; }
+        public User User { get; set; } = null!;  
 
-        public Group Group { get; set; }
-
-        public DateTime DateEntered { get; set; }
+        public int GroupId { get; set; }
+        public Group Group { get; set; } = null!;
 
         public bool Status { get; set; }
-
-        public bool IsOwner { get; set; }
+        public bool IsAdmin { get; set; }
     }
 }
