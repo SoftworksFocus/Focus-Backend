@@ -18,7 +18,6 @@ namespace Focus.Infra
             #region User
             
             modelBuilder.Entity<User>().ToTable("Users");
-            
             modelBuilder.Entity<User>().HasKey(u => u.Id);
             modelBuilder.Entity<User>().Property( u => u.Id)
                 .ValueGeneratedOnAdd();
