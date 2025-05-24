@@ -6,18 +6,22 @@ using System.Threading.Tasks;
 
 namespace Focus.Domain.Entities
 {
-    public class Activity
+    public class Activity : BaseEntity
     {
-        public string Title { get; set; }
+        public string Title { get; set; } = null!;
 
-        public string Description { get; set; }
+        public string Description { get; set; } = null!;
+        
+        public DateTime StartDate { get; set; }
+        
+        public DateTime EndDate { get; set; }
 
-        public bool Status { get; set; }
+        public bool Status { get; set; } = true;
 
-        public DateTime CreationDate { get; set; }
+        public int UserId { get; set; }
+        public User User { get; set; }  = null!;
 
-        public User User { get; set; }
-
+        public int? GroupId { get; set; }
         public Group? Group { get; set; }
     }
 }

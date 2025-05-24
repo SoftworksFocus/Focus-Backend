@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Focus.Domain.Entities
+﻿namespace Focus.Domain.Entities
 {
     public class Group : BaseEntity
     {
@@ -12,8 +6,7 @@ namespace Focus.Domain.Entities
 
         public string? Description { get; set; }
 
-        public string? MyProperty { get; set; }
-
-        public User Admin { get; set; }
+        public List<UserGroup>? Members { get; set; }
+        
     }
 }
