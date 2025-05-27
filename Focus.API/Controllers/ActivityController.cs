@@ -26,28 +26,23 @@ namespace Focus.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Activity>>> GetActivities()
         {
-            var users = await _activityService.GetAll();
-            return Ok(users);
+            var activities = await _activityService.GetAll();
+            return Ok(activities);
         }
 
         // GET: api/Activity/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Activity>> GetById(int id)
+        public async Task<ActionResult<Activity>> GetById([FromRoute]int id)
         {
-            var activity = await GetById(id);
+            var activity = await _activityService.GetById(id);
 
-            if (activity == null)
-            {
-                return NotFound();
-            }
-
-            return activity;
+            return Ok(activity);
         }
 
         // PUT: api/Activity/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, Activity activity)
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] Activity activity)
         {
             await _activityService.Update(id, activity);
 
@@ -57,24 +52,18 @@ namespace Focus.API.Controllers
         // POST: api/Activity
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Activity>> Post(Activity activity)
+        public async Task<ActionResult<Activity>> Create(Activity activity)
         {
-            _activityService.Add(activity);
+            await _activityService.Add(activity);
 
-            return CreatedAtAction("GetActivity", new { id = activity.Id }, activity);
+            return Ok();
         }
 
         // DELETE: api/Activity/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete([FromRoute]int id)
         {
-            var existingActivity = await GetById(id);
-            if (existingActivity == null)
-            {
-                return NotFound();
-            }
-            _activityService.Delete(id);
-
+            await _activityService.Delete(id);
             return NoContent();
         }
         

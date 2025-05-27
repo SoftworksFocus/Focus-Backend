@@ -29,7 +29,7 @@ namespace Focus.API.Controllers
 
         // GET api/<User>/5
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+        public async Task<IActionResult> Get([FromRoute] int id)
         {
             var  user = await _userService.GetById(id);
             
@@ -47,7 +47,7 @@ namespace Focus.API.Controllers
 
         // PUT api/<User>/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update([FromBody] int id, [FromBody] User user)
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] User user)
         {
             var existingUser = await _userService.GetById(id);
             await _userService.Update(id, user);
@@ -57,7 +57,7 @@ namespace Focus.API.Controllers
 
         // DELETE api/<User>/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
             var existingUser =  await _userService.GetById(id);
             await _userService.Delete(id);

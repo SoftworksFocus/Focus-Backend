@@ -8,7 +8,7 @@ public class GroupService : IService<Group>
 {
     private readonly GroupRepository _groupRepository;
     
-    GroupService(GroupRepository groupRepository)
+    public GroupService(GroupRepository groupRepository)
     {
         _groupRepository = groupRepository;
     }
