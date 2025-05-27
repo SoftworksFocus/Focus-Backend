@@ -1,18 +1,19 @@
+using Focus.Application.Services.Interfaces;
 using Focus.Domain.Entities;
 using Focus.Infra.Repositories;
 
 namespace Focus.Application.Services;
 
-public class ActivityService
+public class ActivityService : IService<Activity>
 {
     private readonly ActivityRepository _activityRepository;
 
-    ActivityService(ActivityRepository activityRepository)
+    public ActivityService(ActivityRepository activityRepository)
     {
-        activityRepository = activityRepository;
+        _activityRepository = activityRepository;
     }
 
-    public async Task<Activity> GetAsyncById(int id)
+    public async Task<Activity?> GetById(int id)
     {
         var activity = await _activityRepository.GetByIdAsync(id);
         if (activity == null)
@@ -23,7 +24,7 @@ public class ActivityService
         return activity;
     }
 
-    public async Task<IEnumerable<Activity>> GetAllAsync()
+    public async Task<IEnumerable<Activity>?> GetAll() 
     {
         var activities = await _activityRepository.GetAllAsync();
         
@@ -35,7 +36,7 @@ public class ActivityService
         return activities;
     }
 
-    public async Task<Activity> AddAsync(Activity activity)
+    public async Task Add(Activity activity)
     {
         if (activity == null)
         {
@@ -43,14 +44,12 @@ public class ActivityService
         }
         
         await _activityRepository.AddAsync(activity);
-        
-        return activity;
     }
 
-    public async Task<Activity> UpdateAsync(Activity activity)
+    public async Task Update(int id, Activity activity)
     {
         
-        var existingActivity = await _activityRepository.GetByIdAsync(activity.Id);
+        var existingActivity = await _activityRepository.GetByIdAsync(id);
         
         if (existingActivity == null)
         {
@@ -59,14 +58,13 @@ public class ActivityService
         
         if (existingActivity == null)
         {
-            throw new KeyNotFoundException($"Activity with {existingActivity.Id} not found.");
+            throw new KeyNotFoundException($"Activity with ID {id} not found.");
         }
         
         await _activityRepository.UpdateAsync(existingActivity);
-        return existingActivity;
     }
 
-    public async Task<Activity> DeleteAsync(int id)
+    public async Task Delete(int id)
     {
         var activity = await _activityRepository.GetByIdAsync(id);
         
@@ -76,6 +74,5 @@ public class ActivityService
         }
         
         await _activityRepository.DeleteAsync(id);
-        return activity;
     }
 }

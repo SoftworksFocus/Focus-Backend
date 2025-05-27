@@ -1,9 +1,10 @@
-using Focus.Infra.Repositories;
+using Focus.Application.Services.Interfaces;
 using Focus.Domain.Entities;
+using Focus.Infra.Repositories;
 
 namespace Focus.Application.Services;
 
-public class GroupService
+public class GroupService : IService<Group>
 {
     private readonly GroupRepository _groupRepository;
     
@@ -12,7 +13,7 @@ public class GroupService
         _groupRepository = groupRepository;
     }
 
-    public async Task<Group> GetByIdAsync(int id)
+    public async Task<Group?> GetById(int id)
     {
         var group = await _groupRepository.GetByIdAsync(id);
         
@@ -24,7 +25,7 @@ public class GroupService
         return group;
     }
 
-    public async Task<IEnumerable<Group>> GetAllAsync()
+    public async Task<IEnumerable<Group>?> GetAll()
     {
         var groups =  await _groupRepository.GetAllAsync();
 
@@ -36,7 +37,7 @@ public class GroupService
         return groups;
     }
 
-    public async Task<Group> AddAsync(Group group)
+    public async Task Add(Group group)
     {
         if (group == null)
         {
@@ -44,10 +45,9 @@ public class GroupService
         }
         
         await _groupRepository.AddAsync(group);
-        return group;
     }
 
-    public async Task<Group> UpdateAsync(int id, Group group)
+    public async Task Update(int id, Group group)
     {
         var existingGroup = await _groupRepository.GetByIdAsync(id);
 
@@ -57,10 +57,9 @@ public class GroupService
         }
 
         await _groupRepository.UpdateAsync(id, existingGroup);
-        return  existingGroup;
     }
 
-    public async Task<Group> DeleteAsync(int id)
+    public async Task Delete(int id)
     {
         var existingGroup = await _groupRepository.GetByIdAsync(id);
 
@@ -70,7 +69,6 @@ public class GroupService
         }
 
         await _groupRepository.DeleteAsync(id);
-        return existingGroup;
     }
     
     

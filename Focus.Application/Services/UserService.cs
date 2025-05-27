@@ -4,7 +4,7 @@ using Focus.Infra.Repositories;
 
 namespace Focus.Application.Services;
 
-public class UserService : IUserService
+public class UserService : IService<User>
 {
     private readonly UserRepository _userRepository;
 
@@ -13,7 +13,7 @@ public class UserService : IUserService
         _userRepository = userRepository;
     }
 
-    public async Task<User> GetByIdAsync(int id)
+    public async Task<User?> GetById(int id)
     {
         var user = await _userRepository.GetByIdAsync(id);
         
@@ -25,7 +25,7 @@ public class UserService : IUserService
         return user;
     }
     
-    public async Task<IEnumerable<User>> GetAllAsync()
+    public async Task<IEnumerable<User>?> GetAll()
     {
         var users = await  _userRepository.GetAllAsync();
         
@@ -34,11 +34,10 @@ public class UserService : IUserService
             throw new KeyNotFoundException("No users found.");
         }
         
-        
         return users;
     }
 
-    public async Task<User> AddAsync(User user)
+    public async Task Add(User user)
     {
         if (user == null)
         {
@@ -46,11 +45,9 @@ public class UserService : IUserService
         }
 
         await _userRepository.AddAsync(user);
-        
-        return user;
     }
 
-    public async Task<User> UpdateAsync(int id, User user)
+    public async Task Update(int id, User user)
     {
         var existingUser = await _userRepository.GetByIdAsync(user.Id);
         
@@ -66,11 +63,9 @@ public class UserService : IUserService
 
         await _userRepository.UpdateAsync(id, user);
 
-        return user;
-
     }
 
-    public async Task<User> DeleteAsync(int id)
+    public async Task Delete(int id)
     {
         var existingUser = await _userRepository.GetByIdAsync(id);
         
@@ -80,7 +75,6 @@ public class UserService : IUserService
         }
         
         await _userRepository.DeleteAsync(existingUser.Id);
-        return existingUser;
     }
     
     

@@ -11,18 +11,14 @@ public class UserRepository : IRepository<User>
         _context = context;
     }
     
-    public async Task<User> GetByIdAsync(int id)
+    public async Task<User?> GetByIdAsync(int id)
     {
-        var user = await _context.Users.FindAsync(id);
-        
-        return user;
+        return await _context.Users.FindAsync(id);
     }
 
-    public async Task<IEnumerable<User>> GetAllAsync()
+    public async Task<IEnumerable<User>?> GetAllAsync()
     {
-        var users = await _context.Users.ToListAsync();
-        
-        return users;
+        return await _context.Users.ToListAsync();
     }
 
     public async Task AddAsync(User entity)
@@ -37,6 +33,11 @@ public class UserRepository : IRepository<User>
         
         var existingUser = await _context.Users.FindAsync(entity.Id);
         
+        if (existingUser == null)
+        {
+            throw new KeyNotFoundException($"User with id {id} not found.");
+        }
+        
         _context.Entry(existingUser).CurrentValues.SetValues(entity);
         
         await _context.SaveChangesAsync();
@@ -45,6 +46,11 @@ public class UserRepository : IRepository<User>
     public async Task DeleteAsync(int id)
     {
         var user = await _context.Users.FindAsync(id);
+        
+        if (user == null)
+        {
+            throw new KeyNotFoundException($"User with id {id} not found.");
+        }
         
         _context.Users.Remove(user);
         await _context.SaveChangesAsync();
