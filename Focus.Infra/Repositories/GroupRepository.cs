@@ -12,44 +12,49 @@ public class GroupRepository : IRepository<Group>
         _context = context;
     }
 
-    public async Task<Group> GetByIdAsync(int id)
+    public async Task<Group?> GetByIdAsync(int id)
     {
         var group =  await _context.Groups.FindAsync(id);
 
         return group;
     }
 
-    public async Task<IEnumerable<Group>> GetAllAsync()
+    public async Task<IEnumerable<Group>?> GetAllAsync()
     {
         var groups =   await _context.Groups.ToListAsync();
-
-        if (groups == null || !groups.Any())
+        if (groups == null || groups.Count == 0)
         {
             throw new KeyNotFoundException($"Groups not found.");
         }
-        
         return groups;
     }
 
-    public async Task AddAsync(Group entity)
+    public async Task AddAsync(Group group)
     {
-        await _context.Groups.AddAsync(entity);
+        await _context.Groups.AddAsync(group);
         await _context.SaveChangesAsync();
     }
 
-    public async Task UpdateAsync(int id, Group entity)
+    public async Task UpdateAsync(int id, Group newGroup)
     {
-        var existingGroup = await _context.Groups.FindAsync(entity.Id);
-        
-        _context.Groups.Update(entity);
+        var groupToUpdate = await _context.Groups.FindAsync(newGroup.Id);
+        if (groupToUpdate == null)
+        {
+            throw new KeyNotFoundException($"Group with id {id} not found.");
+        }
+
+        _context.Groups.Update(newGroup);
         await _context.SaveChangesAsync();
     }
 
     public async Task DeleteAsync(int id)
     {
-        var entity = await  _context.Groups.FindAsync(id);
-        
-        _context.Remove(entity);
+        var group = await  _context.Groups.FindAsync(id);
+        if (group == null)
+        {
+            throw new KeyNotFoundException($"Group with id {id} not found.");
+        }
+        _context.Remove(group);
         await _context.SaveChangesAsync();
     }
 }

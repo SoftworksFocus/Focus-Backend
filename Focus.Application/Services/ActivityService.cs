@@ -61,18 +61,11 @@ public class ActivityService : IService<Activity>
             throw new KeyNotFoundException($"Activity with ID {id} not found.");
         }
         
-        await _activityRepository.UpdateAsync(existingActivity);
+        await _activityRepository.UpdateAsync(id, existingActivity);
     }
 
     public async Task Delete(int id)
     {
-        var activity = await _activityRepository.GetByIdAsync(id);
-        
-        if (activity == null)
-        {
-            throw new ArgumentNullException(nameof(activity), "Activity cannot be null.");
-        }
-        
         await _activityRepository.DeleteAsync(id);
     }
 }

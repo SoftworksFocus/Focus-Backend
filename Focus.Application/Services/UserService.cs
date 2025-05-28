@@ -13,18 +13,6 @@ public class UserService : IService<User>
         _userRepository = userRepository;
     }
 
-    public async Task<User?> GetById(int id)
-    {
-        var user = await _userRepository.GetByIdAsync(id);
-        
-        if (user == null)
-        {
-            throw new KeyNotFoundException($"User with id {id} not found.");
-        }
-
-        return user;
-    }
-    
     public async Task<IEnumerable<User>?> GetAll()
     {
         var users = await  _userRepository.GetAllAsync();
@@ -35,6 +23,18 @@ public class UserService : IService<User>
         }
         
         return users;
+    }
+    
+    public async Task<User?> GetById(int id)
+    {
+        var user = await _userRepository.GetByIdAsync(id);
+        
+        if (user == null)
+        {
+            throw new KeyNotFoundException($"User with id {id} not found.");
+        }
+
+        return user;
     }
 
     public async Task Add(User user)
@@ -67,15 +67,7 @@ public class UserService : IService<User>
 
     public async Task Delete(int id)
     {
-        var existingUser = await _userRepository.GetByIdAsync(id);
-        
-        if (existingUser == null)
-        {
-            throw new KeyNotFoundException($"User with id {id} not found.");
-        }
-        
-        await _userRepository.DeleteAsync(existingUser.Id);
+        await _userRepository.DeleteAsync(id);
     }
-    
     
 }

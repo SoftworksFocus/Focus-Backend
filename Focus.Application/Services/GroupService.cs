@@ -61,13 +61,6 @@ public class GroupService : IService<Group>
 
     public async Task Delete(int id)
     {
-        var existingGroup = await _groupRepository.GetByIdAsync(id);
-
-        if (existingGroup == null)
-        {
-            throw new ArgumentNullException(nameof(existingGroup), "Group cannot be null.");
-        }
-
         await _groupRepository.DeleteAsync(id);
     }
     

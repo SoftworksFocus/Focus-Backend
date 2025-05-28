@@ -59,9 +59,7 @@ namespace Focus.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            var existingUser =  await _userService.GetById(id);
             await _userService.Delete(id);
-            
             return Ok();
         }
     }

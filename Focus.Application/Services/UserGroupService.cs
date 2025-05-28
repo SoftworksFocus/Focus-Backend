@@ -11,18 +11,7 @@ public class UserGroupService
      {
          _userGroupRepository = userGroupRepository;
      }
-    
-     public async Task<UserGroup?> GetById(int id)
-     {
-         var activity = await _userGroupRepository.GetByIdAsync(id);
-         if (activity == null)
-         {
-             throw new KeyNotFoundException($"UserGroup with {id} not found");
-         }
-         
-         return activity;
-     }
-    
+     
      public async Task<IEnumerable<UserGroup>?> GetAll() 
      {
          var usersGroups = await _userGroupRepository.GetAllAsync();
@@ -33,6 +22,17 @@ public class UserGroupService
          }
          
          return usersGroups;
+     }
+     
+     public async Task<UserGroup?> GetById(int userId, int groupId)
+     {
+         var activity = await _userGroupRepository.GetByIdAsync(userId, groupId);
+         if (activity == null)
+         {
+             throw new KeyNotFoundException($"UserGroup not found");
+         }
+         
+         return activity;
      }
     
      public async Task Add(UserGroup activity)
@@ -45,10 +45,10 @@ public class UserGroupService
          await _userGroupRepository.AddAsync(activity);
      }
     
-     public async Task Update(int id, UserGroup activity)
+     public async Task Update(int userId, int groupId, UserGroup activity)
      {
          
-         var existingUserGroup = await _userGroupRepository.GetByIdAsync(id);
+         var existingUserGroup = await _userGroupRepository.GetByIdAsync(userId, groupId);
          
          if (existingUserGroup == null)
          {
@@ -57,21 +57,13 @@ public class UserGroupService
          
          if (existingUserGroup == null)
          {
-             throw new KeyNotFoundException($"UserGroup with ID {id} not found.");
+             throw new KeyNotFoundException($"UserGroup not found.");
          }
-         
-         await _userGroupRepository.UpdateAsync(id, existingUserGroup);
+         await _userGroupRepository.UpdateAsync(userId, groupId, activity);
      }
     
-     public async Task Delete(int id)
+     public async Task Delete(int userId, int groupId)
      {
-         var activity = await _userGroupRepository.GetByIdAsync(id);
-         
-         if (activity == null)
-         {
-             throw new ArgumentNullException(nameof(activity), "UserGroup cannot be null.");
-         }
-         
-         await _userGroupRepository.DeleteAsync(id);
-    }
+         await _userGroupRepository.DeleteAsync(userId, groupId);
+     }
 }

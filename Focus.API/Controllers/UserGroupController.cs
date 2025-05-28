@@ -26,10 +26,10 @@ namespace Focus.API.Controllers
         }
 
         // GET api/<User>/5
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get([FromRoute] int id)
+        [HttpGet("{userId}/{groupId}")]
+        public async Task<IActionResult> Get([FromRoute] int userId, [FromRoute] int groupId)
         {
-            var  userGroup = await _userGroupService.GetById(id);
+            var  userGroup = await _userGroupService.GetById(userId, groupId);
             
             return Ok(userGroup);
         }
@@ -44,19 +44,19 @@ namespace Focus.API.Controllers
         }
 
         // PUT api/<User>/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UserGroup userGroup)
+        [HttpPut("{userId}/{groupId}")]
+        public async Task<IActionResult> Update([FromRoute] int userId, [FromRoute] int groupId, [FromBody] UserGroup newUserGroup)
         {
-            await _userGroupService.Update(id, userGroup);
+            await _userGroupService.Update(userId, groupId, newUserGroup);
 
             return Ok();
         }
 
         // DELETE api/<User>/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete([FromRoute] int id)
+        [HttpDelete("{userId}/{groupId}")]
+        public async Task<IActionResult> Delete([FromRoute] int userId, [FromRoute] int groupId)
         {
-            await _userGroupService.Delete(id);
+            await _userGroupService.Delete(userId, groupId);
             
             return Ok();
         }
