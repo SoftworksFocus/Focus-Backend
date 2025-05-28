@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Focus.Application.Services;
 using Focus.Domain.Entities;
+using Focus.Domain.DTO;
+using Focus.Domain.DTO.User;
 using Microsoft.EntityFrameworkCore;
 
 namespace Focus.API.Controllers
@@ -38,9 +40,9 @@ namespace Focus.API.Controllers
 
         // POST api/<User>
         [HttpPost]
-        public async Task<IActionResult> Add([FromBody] User user)
+        public async Task<IActionResult> Add([FromBody] CreateUserDto userDto)
         {
-            await _userService.Add(user);
+            await _userService.Add(userDto.ToUser());
             
             return Ok();
         }
