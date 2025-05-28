@@ -1,3 +1,4 @@
+using Focus.Application.Services;
 using Focus.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -8,38 +9,57 @@ namespace Focus.API.Controllers
     [ApiController]
     public class UserGroupController : ControllerBase
     {
-       // private readonly UserGroupService _userGroupService;
+        private readonly UserGroupService _userGroupService;
+
+        public UserGroupController(UserGroupService userGroupService)
+        {
+            _userGroupService = userGroupService;
+        }
         
-        // GET: api/<UserGroupController>
+        // GET: api/<User>
         [HttpGet]
-        // public async Task<ActionResult<IEnumerable<UserGroup>>> GetUserGroups()
-        // {
-        //     
-        // }
+        public async Task<IActionResult> GetAll()
+        {
+            var usersGroups = await _userGroupService.GetAll();
+            
+            return Ok(usersGroups);
+        }
 
-        // GET api/<UserGroupController>/5
+        // GET api/<User>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public async Task<IActionResult> Get([FromRoute] int id)
         {
-            return "value";
+            var  userGroup = await _userGroupService.GetById(id);
+            
+            return Ok(userGroup);
         }
 
-        // POST api/<UserGroupController>
+        // POST api/<User>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public async Task<IActionResult> Add([FromBody] UserGroup userGroup)
         {
+            await _userGroupService.Add(userGroup);
+            
+            return Ok();
         }
 
-        // PUT api/<UserGroupController>/5
+        // PUT api/<User>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UserGroup userGroup)
         {
+            var existingUserGroup = await _userGroupService.GetById(id);
+            await _userGroupService.Update(id, existingUserGroup);
+
+            return Ok();
         }
 
-        // DELETE api/<UserGroupController>/5
+        // DELETE api/<User>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
+            await _userGroupService.Delete(id);
+            
+            return Ok();
         }
     }
 }

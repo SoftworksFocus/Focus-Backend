@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Focus.Infra.Repositories;
 using Focus.Domain.Entities;
 
-public class ActivityRepository
+public class ActivityRepository : IRepository<Activity>
 {
     private readonly FocusDbContext _context;
 
@@ -28,6 +28,11 @@ public class ActivityRepository
     {
         await _context.Activities.AddAsync(entity);
         await _context.SaveChangesAsync();
+    }
+
+    public Task UpdateAsync(int id, Activity entity)
+    {
+        throw new NotImplementedException();
     }
 
     public async Task UpdateAsync(Activity entity)
