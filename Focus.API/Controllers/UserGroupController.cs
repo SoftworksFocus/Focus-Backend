@@ -47,8 +47,7 @@ namespace Focus.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UserGroup userGroup)
         {
-            var existingUserGroup = await _userGroupService.GetById(id);
-            await _userGroupService.Update(id, existingUserGroup);
+            await _userGroupService.Update(id, userGroup);
 
             return Ok();
         }
