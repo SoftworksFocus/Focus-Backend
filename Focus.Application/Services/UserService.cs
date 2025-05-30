@@ -49,7 +49,7 @@ public class UserService : IService<User>
 
     public async Task Update(int id, User user)
     {
-        var existingUser = await _userRepository.GetByIdAsync(user.Id);
+        var existingUser = await _userRepository.GetByIdAsync(id);
         
         if (user == null)
         {
@@ -58,7 +58,7 @@ public class UserService : IService<User>
         
         if (existingUser == null)
         {
-            throw new KeyNotFoundException($"User with id {user.Id} not found.");
+            throw new KeyNotFoundException($"User with id {id} not found on service.");
         }
 
         await _userRepository.UpdateAsync(id, user);

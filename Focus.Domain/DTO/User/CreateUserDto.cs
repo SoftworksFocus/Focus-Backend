@@ -3,7 +3,7 @@ using Focus.Domain.Entities;
 
 public class CreateUserDto : PlainUserDto
 {
-    public string Password { get; set; } = null!;
+    private string Password { get; set; } = null!;
 
     public User ToUser() =>
         new User
@@ -11,7 +11,8 @@ public class CreateUserDto : PlainUserDto
             Username = Username,
             Email = Email,
             Description = Description,
-            Password = Password,
+            // Password = Password,
+            Password = "TestPassword", // Todo: This should be handled securely 
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
         };

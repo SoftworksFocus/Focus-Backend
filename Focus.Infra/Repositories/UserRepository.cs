@@ -30,12 +30,13 @@ public class UserRepository : IRepository<User>
 
     public async Task UpdateAsync(int id, User newUser)
     {
-        var existingUser = await _context.Users.FindAsync(newUser.Id);
-        if (existingUser == null)
-        {
-            throw new KeyNotFoundException($"User with id {id} not found.");
-        }
-        _context.Users.Update(newUser);
+        var user = _context.Users.SingleAsync( x => x.Id == id);
+        
+        user.Result.Username = newUser.Username;
+        user.Result.Description = newUser.Description;
+        user.Result.Email = newUser.Email;
+        user.Result.UpdatedAt = newUser.UpdatedAt;
+        
         await _context.SaveChangesAsync();
     }
 

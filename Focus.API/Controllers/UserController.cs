@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Focus.Application.Services;
@@ -25,17 +26,18 @@ namespace Focus.API.Controllers
         public async Task<IActionResult> GetAll()
         {
             var users = await _userService.GetAll();
+            var returnUsers= users!.Select(GetUserDto.FromUser).ToList();
             
-            return Ok(users);
+            return Ok(returnUsers);
         }
 
         // GET api/<User>/5
         [HttpGet("{id}")]
         public async Task<IActionResult> Get([FromRoute] int id)
         {
-            var  user = await _userService.GetById(id);
-            
-            return Ok(user);
+            var user = await _userService.GetById(id);
+            var returnUser = GetUserDto.FromUser(user!);
+            return Ok(returnUser);
         }
 
         // POST api/<User>
@@ -49,11 +51,9 @@ namespace Focus.API.Controllers
 
         // PUT api/<User>/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] User user)
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateUserDto userDto)
         {
-            var existingUser = await _userService.GetById(id);
-            await _userService.Update(id, user);
-
+            await _userService.Update(id, userDto.ToUser());
             return Ok();
         }
 
