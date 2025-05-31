@@ -1,10 +1,11 @@
+using Focus.Application.DTO.Activity;
 using Focus.Application.Services.Interfaces;
 using Focus.Domain.Entities;
 using Focus.Infra.Repositories;
 
 namespace Focus.Application.Services;
 
-public class ActivityService : IService<Activity>
+public class ActivityService : IActivityService
 {
     private readonly ActivityRepository _activityRepository;
 
@@ -13,7 +14,7 @@ public class ActivityService : IService<Activity>
         _activityRepository = activityRepository;
     }
 
-    public async Task<Activity?> GetById(int id)
+    public async Task<GetActivityDto> GetById(int id)
     {
         var activity = await _activityRepository.GetByIdAsync(id);
         if (activity == null)
@@ -21,10 +22,12 @@ public class ActivityService : IService<Activity>
             throw new KeyNotFoundException($"Activity with {id} not found");
         }
         
-        return activity;
+        var returnActivity = GetActivityDto.FromActivity(activity);
+        
+        return returnActivity;
     }
 
-    public async Task<IEnumerable<Activity>?> GetAll() 
+    public async Task<IEnumerable<GetActivityDto>> GetAll() 
     {
         var activities = await _activityRepository.GetAllAsync();
         
@@ -32,21 +35,26 @@ public class ActivityService : IService<Activity>
         {
             throw new KeyNotFoundException("No activities found");
         }
+
+        var returnActivities = activities.Select(GetActivityDto.FromActivity);
+        Console.WriteLine(returnActivities);
         
-        return activities;
+        return returnActivities;
     }
 
-    public async Task Add(Activity activity)
+    public async Task Add(CreateActivityDto activity)
     {
         if (activity == null)
         {
             throw new ArgumentNullException(nameof(activity), "Activity cannot be null.");
         }
         
-        await _activityRepository.AddAsync(activity);
+        var activityEntity = activity.ToActivity(activity.UserId, activity.GroupId);
+        
+        await _activityRepository.AddAsync(activityEntity);
     }
 
-    public async Task Update(int id, Activity activity)
+    public async Task Update(int id, UpdateActivityDto newActivityDto)
     {
         
         var existingActivity = await _activityRepository.GetByIdAsync(id);
@@ -61,7 +69,9 @@ public class ActivityService : IService<Activity>
             throw new KeyNotFoundException($"Activity with ID {id} not found.");
         }
         
-        await _activityRepository.UpdateAsync(id, existingActivity);
+        var newActivity = newActivityDto.ToActivity();
+        
+        await _activityRepository.UpdateAsync(id, newActivity);
     }
 
     public async Task Delete(int id)

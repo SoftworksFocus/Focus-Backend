@@ -29,7 +29,7 @@ public class UserGroupRepository
 
     public async Task UpdateAsync(int userId, int groupId, UserGroup newUserGroup)
     {
-        var userGroupToUpdate = await _context.UserGroups.FindAsync(newUserGroup.UserId, newUserGroup.GroupId);
+        var userGroupToUpdate = await _context.UserGroups.FindAsync(userId, groupId);
         
         if (userGroupToUpdate == null)
         {

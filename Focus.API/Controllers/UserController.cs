@@ -1,11 +1,7 @@
-using System.Diagnostics;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Focus.Application.Services;
-using Focus.Domain.Entities;
-using Focus.Domain.DTO;
-using Focus.Domain.DTO.User;
-using Microsoft.EntityFrameworkCore;
+using Focus.Application.DTO.User;
+
 
 namespace Focus.API.Controllers
 {
@@ -25,40 +21,37 @@ namespace Focus.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var users = await _userService.GetAll();
-            var returnUsers= users!.Select(GetUserDto.FromUser).ToList();
-            
+            var returnUsers = await _userService.GetAll();
             return Ok(returnUsers);
         }
 
         // GET api/<User>/5
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         public async Task<IActionResult> Get([FromRoute] int id)
         {
             var user = await _userService.GetById(id);
-            var returnUser = GetUserDto.FromUser(user!);
-            return Ok(returnUser);
+            return Ok(user);
         }
 
         // POST api/<User>
         [HttpPost]
         public async Task<IActionResult> Add([FromBody] CreateUserDto userDto)
         {
-            await _userService.Add(userDto.ToUser());
+            await _userService.Add(userDto);
             
             return Ok();
         }
 
         // PUT api/<User>/5
-        [HttpPut("{id}")]
+        [HttpPut("{id:int}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateUserDto userDto)
         {
-            await _userService.Update(id, userDto.ToUser());
+            await _userService.Update(id, userDto);
             return Ok();
         }
 
         // DELETE api/<User>/5
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
             await _userService.Delete(id);

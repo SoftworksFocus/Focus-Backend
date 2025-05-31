@@ -1,5 +1,5 @@
-namespace Focus.Domain.DTO.User;
-using Focus.Domain.Entities;
+namespace Focus.Application.DTO.User;
+using Domain.Entities;
 public class GetUserDto : PlainUserDto
 {
     public int Id { get; set; }

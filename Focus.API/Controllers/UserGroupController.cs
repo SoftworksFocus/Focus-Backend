@@ -1,6 +1,5 @@
 using Focus.Application.Services;
 using Focus.Domain.Entities;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Focus.API.Controllers
@@ -26,7 +25,7 @@ namespace Focus.API.Controllers
         }
 
         // GET api/<User>/5
-        [HttpGet("{userId}/{groupId}")]
+        [HttpGet("{userId:int}/{groupId:int}")]
         public async Task<IActionResult> Get([FromRoute] int userId, [FromRoute] int groupId)
         {
             var  userGroup = await _userGroupService.GetById(userId, groupId);
@@ -44,7 +43,7 @@ namespace Focus.API.Controllers
         }
 
         // PUT api/<User>/5
-        [HttpPut("{userId}/{groupId}")]
+        [HttpPut("{userId:int}/{groupId:int}")]
         public async Task<IActionResult> Update([FromRoute] int userId, [FromRoute] int groupId, [FromBody] UserGroup newUserGroup)
         {
             await _userGroupService.Update(userId, groupId, newUserGroup);
@@ -53,7 +52,7 @@ namespace Focus.API.Controllers
         }
 
         // DELETE api/<User>/5
-        [HttpDelete("{userId}/{groupId}")]
+        [HttpDelete("{userId:int}/{groupId:int}")]
         public async Task<IActionResult> Delete([FromRoute] int userId, [FromRoute] int groupId)
         {
             await _userGroupService.Delete(userId, groupId);

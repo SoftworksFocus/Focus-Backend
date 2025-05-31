@@ -1,13 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
+using Focus.Application.DTO.Activity;
 using Focus.Application.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Focus.Domain.Entities;
-using Focus.Infra;
 
 namespace Focus.API.Controllers
 {
@@ -24,15 +19,15 @@ namespace Focus.API.Controllers
 
         // GET: api/Activity
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Activity>>> GetActivities()
+        public async Task<ActionResult<IEnumerable<GetActivityDto>>> GetActivities()
         {
-            var activities = await _activityService.GetAll();
+            var activities =  await _activityService.GetAll();
             return Ok(activities);
         }
 
         // GET: api/Activity/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Activity>> GetById([FromRoute]int id)
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<GetActivityDto>> GetById([FromRoute]int id)
         {
             var activity = await _activityService.GetById(id);
 
@@ -41,8 +36,8 @@ namespace Focus.API.Controllers
 
         // PUT: api/Activity/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] Activity activity)
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateActivityDto activity)
         {
             await _activityService.Update(id, activity);
 
@@ -52,7 +47,7 @@ namespace Focus.API.Controllers
         // POST: api/Activity
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Activity>> Create(Activity activity)
+        public async Task<ActionResult<Activity>> Create(CreateActivityDto activity)
         {
             await _activityService.Add(activity);
 
@@ -60,7 +55,7 @@ namespace Focus.API.Controllers
         }
 
         // DELETE: api/Activity/5
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete([FromRoute]int id)
         {
             await _activityService.Delete(id);

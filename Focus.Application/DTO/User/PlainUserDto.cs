@@ -1,4 +1,4 @@
-namespace Focus.Domain.DTO.User;
+namespace Focus.Application.DTO.User;
 
 public class PlainUserDto
 {

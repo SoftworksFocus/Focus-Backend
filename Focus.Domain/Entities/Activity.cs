@@ -9,7 +9,7 @@ namespace Focus.Domain.Entities
     public class Activity : BaseEntity
     {
         public string Title { get; set; } = null!;
-        public string Description { get; set; } = null!;
+        public string? Description { get; set; } = null!;
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public bool Status { get; set; } = true;

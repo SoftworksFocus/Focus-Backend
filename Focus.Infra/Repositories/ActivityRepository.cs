@@ -14,13 +14,17 @@ public class ActivityRepository : IRepository<Activity>
 
     public async Task<Activity?> GetByIdAsync(int id)
     {
-        var  activity = await _context.Activities.FindAsync(id);
+        var  activity = await _context.Activities
+            .Include( a => a.User)
+            .FirstOrDefaultAsync(a => a.Id == id);
         return activity;
     }
 
     public async Task<IEnumerable<Activity>?> GetAllAsync()
     {
-        var  activities = await _context.Activities.ToListAsync();
+        var  activities = await _context.Activities
+            .Include(u => u.User)
+            .ToListAsync();
         return activities;
     }
     
