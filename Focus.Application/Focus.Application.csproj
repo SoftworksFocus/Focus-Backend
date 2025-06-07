@@ -23,4 +23,8 @@
     <ProjectReference Include="..\Focus.Infra\Focus.Infra.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Utils\Messages\" />
+  </ItemGroup>
+
 </Project>

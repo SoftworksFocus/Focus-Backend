@@ -5,6 +5,7 @@ using DTO.User;
 
 public class GetActivityDto : PlainActivityDto
 {
+    public int Id { get; set; }
     public SumaryUserDto User { get; set; } = null!;
     // public Group? Group { get; set; }
     
@@ -12,6 +13,7 @@ public class GetActivityDto : PlainActivityDto
     {
         return new GetActivityDto
         {
+            Id = activity.Id,
             Title = activity.Title,
             Description = activity.Description,
             StartDate = activity.StartDate.ToString("g"),

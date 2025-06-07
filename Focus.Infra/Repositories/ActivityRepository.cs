@@ -1,3 +1,4 @@
+using Focus.Infra.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Focus.Infra.Repositories;
@@ -28,35 +29,23 @@ public class ActivityRepository : IRepository<Activity>
         return activities;
     }
     
-    public async Task AddAsync(Activity activity)
+    public async Task<bool> AddAsync(Activity activity)
     {
         await _context.Activities.AddAsync(activity);
-        await _context.SaveChangesAsync();
+        return await _context.SaveChangesAsync() > 0;
     }
 
-    public async Task UpdateAsync(int id, Activity newActivity)
-    {
-        var activityToUpdate = await _context.Activities.FindAsync(id);
-        
-        if (activityToUpdate == null)
-        {
-            throw new KeyNotFoundException($"Activity with id {newActivity.Id} not found.");
-        }
-        
-        _context.Activities.Update(activityToUpdate);
-        await _context.SaveChangesAsync();
-    }
+    public async Task<bool> UpdateAsync() =>   
+        await _context.SaveChangesAsync() > 0;
 
-    public async Task DeleteAsync(int id)
+    public async Task<bool> DeleteAsync(int id)
     {
         var activityToDelete = await  _context.Activities.FindAsync(id);
-        
         if (activityToDelete == null)
         {
             throw new KeyNotFoundException($"User with id {id} not found.");
         }
-        
         _context.Remove(activityToDelete);
-        await _context.SaveChangesAsync();
+        return await _context.SaveChangesAsync() > 0;
     }
 }

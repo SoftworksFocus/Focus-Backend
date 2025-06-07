@@ -1,3 +1,4 @@
+using Focus.Application.DTO.Group;
 using Focus.Application.Services;
 using Focus.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -10,54 +11,101 @@ namespace Focus.API.Controllers
     {
         private readonly GroupService _groupService;
 
-        GroupController(GroupService groupService)
+        public GroupController(GroupService groupService)
         {
             _groupService =  groupService;
         }
         
         // GET: api/<GroupController>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Group>>> GetGroups()
+        public async Task<ActionResult<IEnumerable<GetGroupDto>>> GetGroups()
         {
-            var groups =  await _groupService.GetAll();
-
-            return Ok(groups);
+            try
+            {
+                var groups = await _groupService.GetAll();
+                return Ok(groups);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
         // GET api/<GroupController>/5
         [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<ActionResult<GetGroupDto>> GetById(int id)
         {
-            var group =  await _groupService.GetById(id);
-
-            return Ok(group);
+            try
+            {
+                var group = await _groupService.GetById(id);
+                return Ok(group);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
         // POST api/<GroupController>
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] Group group)
+        public async Task<ActionResult> Post([FromBody] CreateGroupDto group)
         {
             await _groupService.Add(group);
-
             return Ok();
         }
 
         // PUT api/<GroupController>/5
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> Put(int id, [FromBody] Group group)
+        public async Task<ActionResult> Put(int id, [FromBody] UpdateGroupDto group)
         {
-            await _groupService.Update(id, group);
-            
-            return Ok();
+            try
+            {
+                await _groupService.Update(id, group);
+                return Ok();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (ArgumentNullException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
         // DELETE api/<GroupController>/5
         [HttpDelete("{id:int}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
-            await _groupService.Delete(id);
-            
-            return Ok();
+            try
+            {
+                await _groupService.Delete(id);
+                return Ok();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (ArgumentNullException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
     }
 }

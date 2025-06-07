@@ -1,3 +1,4 @@
+using Focus.Infra.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Focus.Infra.Repositories;
@@ -15,46 +16,32 @@ public class GroupRepository : IRepository<Group>
     public async Task<Group?> GetByIdAsync(int id)
     {
         var group =  await _context.Groups.FindAsync(id);
-
         return group;
     }
 
     public async Task<IEnumerable<Group>?> GetAllAsync()
     {
-        var groups =   await _context.Groups.ToListAsync();
-        if (groups == null || groups.Count == 0)
-        {
-            throw new KeyNotFoundException($"Groups not found.");
-        }
+        var groups = await _context.Groups.ToListAsync();
         return groups;
     }
 
-    public async Task AddAsync(Group group)
+    public async Task<bool> AddAsync(Group group)
     {
         await _context.Groups.AddAsync(group);
-        await _context.SaveChangesAsync();
+        return await _context.SaveChangesAsync() > 0;
     }
 
-    public async Task UpdateAsync(int id, Group newGroup)
-    {
-        var groupToUpdate = await _context.Groups.FindAsync(newGroup.Id);
-        if (groupToUpdate == null)
-        {
-            throw new KeyNotFoundException($"Group with id {id} not found.");
-        }
+    public async Task<bool> UpdateAsync() =>   
+        await _context.SaveChangesAsync() > 0;
 
-        _context.Groups.Update(newGroup);
-        await _context.SaveChangesAsync();
-    }
-
-    public async Task DeleteAsync(int id)
+    public async Task<bool> DeleteAsync(int id)
     {
-        var group = await  _context.Groups.FindAsync(id);
+        var group = await _context.Groups.FindAsync(id);
         if (group == null)
         {
             throw new KeyNotFoundException($"Group with id {id} not found.");
         }
         _context.Remove(group);
-        await _context.SaveChangesAsync();
+        return await _context.SaveChangesAsync() > 0;
     }
 }

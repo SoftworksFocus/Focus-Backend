@@ -45,28 +45,37 @@ public class UserService : IUserService
             throw new ArgumentNullException(nameof(userDto), "User cannot be null.");
         }
         var user = userDto.ToUser();
-        await _userRepository.AddAsync(user);
+        if (!await _userRepository.AddAsync(user))
+        {
+            throw new Exception("Failed to add user.");
+        }
     }
 
     public async Task Update(int id, UpdateUserDto newUserDto)
     {
-        var existingUser = await _userRepository.GetByIdAsync(id);
-        if (existingUser == null)
+        var updateUser = await _userRepository.GetByIdAsync(id);
+        if (newUserDto == null)
         {
             throw new ArgumentNullException(nameof(newUserDto), "User cannot be null.");
         }
-        if (existingUser == null)
+        if (updateUser == null)
         {
             throw new KeyNotFoundException($"User with id {id} not found on service.");
         }
-        var newUser = newUserDto.ToUser(id);
-        await _userRepository.UpdateAsync(id, newUser);
-
+        newUserDto.MapTo(updateUser);
+        if (!await _userRepository.UpdateAsync())
+        {
+            throw new Exception($"Failed to update user with id {id}.");
+        }
+            
     }
 
     public async Task Delete(int id)
     {
-        await _userRepository.DeleteAsync(id);
+        if (!await _userRepository.DeleteAsync(id))
+        {
+            throw new Exception($"Failed to delete user with id {id}.");
+        }
     }
     
 }

@@ -21,17 +21,38 @@ namespace Focus.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<GetActivityDto>>> GetActivities()
         {
-            var activities =  await _activityService.GetAll();
-            return Ok(activities);
+            try
+            {
+                var activities = await _activityService.GetAll();
+                return Ok(activities);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
         // GET: api/Activity/5
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<GetActivityDto>> GetById([FromRoute]int id)
+        public async Task<IActionResult> GetById([FromRoute]int id)
         {
-            var activity = await _activityService.GetById(id);
-
-            return Ok(activity);
+            try
+            {
+                var activity = await _activityService.GetById(id);
+                return Ok(activity);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
         // PUT: api/Activity/5
@@ -39,27 +60,54 @@ namespace Focus.API.Controllers
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateActivityDto activity)
         {
-            await _activityService.Update(id, activity);
-
-            return NoContent();
+            try
+            {
+                await _activityService.Update(id, activity);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
         // POST: api/Activity
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Activity>> Create(CreateActivityDto activity)
+        public async Task<IActionResult> Create(CreateActivityDto activity)
         {
-            await _activityService.Add(activity);
-
-            return Ok();
+            try
+            {
+                await _activityService.Add(activity);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
         // DELETE: api/Activity/5
         [HttpDelete("{id:int}")]
-        public async Task<IActionResult> Delete([FromRoute]int id)
+        public async Task<ActionResult> Delete([FromRoute]int id)
         {
-            await _activityService.Delete(id);
-            return NoContent();
+            try
+            {
+                await _activityService.Delete(id);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
         
     }

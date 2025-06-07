@@ -14,28 +14,24 @@ public class ActivityService : IActivityService
         _activityRepository = activityRepository;
     }
 
-    public async Task<GetActivityDto> GetById(int id)
+    public async Task<GetActivityDto?> GetById(int id)
     {
         var activity = await _activityRepository.GetByIdAsync(id);
         if (activity == null)
         {
             throw new KeyNotFoundException($"Activity with {id} not found");
         }
-        
         var returnActivity = GetActivityDto.FromActivity(activity);
-        
         return returnActivity;
     }
 
-    public async Task<IEnumerable<GetActivityDto>> GetAll() 
+    public async Task<IEnumerable<GetActivityDto>?> GetAll() 
     {
         var activities = await _activityRepository.GetAllAsync();
-        
         if (activities == null || !activities.Any())
         {
             throw new KeyNotFoundException("No activities found");
         }
-
         var returnActivities = activities.Select(GetActivityDto.FromActivity);
         Console.WriteLine(returnActivities);
         
@@ -50,32 +46,35 @@ public class ActivityService : IActivityService
         }
         
         var activityEntity = activity.ToActivity(activity.UserId, activity.GroupId);
-        
-        await _activityRepository.AddAsync(activityEntity);
+        if(!await _activityRepository.AddAsync(activityEntity))
+        {
+            throw new Exception("Failed to add activity.");
+        }
     }
 
-    public async Task Update(int id, UpdateActivityDto newActivityDto)
+    public async Task Update(int id, UpdateActivityDto newActivityDto) 
     {
-        
-        var existingActivity = await _activityRepository.GetByIdAsync(id);
-        
-        if (existingActivity == null)
+        var updateActivity = await _activityRepository.GetByIdAsync(id);
+        if (newActivityDto == null)
         {
-            throw new ArgumentNullException(nameof(existingActivity), "Activity cannot be null.");
+            throw new ArgumentNullException(nameof(newActivityDto), "Activity cannot be null.");
         }
-        
-        if (existingActivity == null)
+        if (updateActivity == null)
         {
             throw new KeyNotFoundException($"Activity with ID {id} not found.");
         }
-        
-        var newActivity = newActivityDto.ToActivity();
-        
-        await _activityRepository.UpdateAsync(id, newActivity);
+        newActivityDto.MapTo(updateActivity);
+        if (!await _activityRepository.UpdateAsync())
+        {
+            throw new Exception($"Failed to update activity with id {id}.");
+        }
     }
 
     public async Task Delete(int id)
     {
-        await _activityRepository.DeleteAsync(id);
+        if(!await _activityRepository.DeleteAsync(id))
+        {
+            throw new KeyNotFoundException($"Activity with ID {id} not found.");
+        }
     }
 }
