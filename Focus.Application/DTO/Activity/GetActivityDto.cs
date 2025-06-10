@@ -6,8 +6,8 @@ using DTO.User;
 public class GetActivityDto : PlainActivityDto
 {
     public int Id { get; set; }
-    public SumaryUserDto User { get; set; } = null!;
-    // public Group? Group { get; set; }
+    public SummaryUserDto User { get; set; } = null!;
+    public Group? Group { get; set; }
     
     public static GetActivityDto FromActivity(Activity activity)
     {
@@ -19,8 +19,8 @@ public class GetActivityDto : PlainActivityDto
             StartDate = activity.StartDate.ToString("g"),
             EndDate = activity.EndDate.ToString("g"),
             Status = activity.Status,
-            User = SumaryUserDto.FromUser(activity.User),
-            // Group = activity.Group Todo: implement Group DTO
+            User = SummaryUserDto.FromUser(activity.User),
+            Group = activity.Group
         };
     }
 }
