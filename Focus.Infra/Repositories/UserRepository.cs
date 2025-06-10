@@ -1,3 +1,4 @@
+using Focus.Infra.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Focus.Infra.Repositories;
@@ -11,48 +12,33 @@ public class UserRepository : IRepository<User>
         _context = context;
     }
     
+    public async Task<IEnumerable<User>?> GetAllAsync()
+    {
+        return await _context.Users.ToListAsync();
+    }
+    
     public async Task<User?> GetByIdAsync(int id)
     {
         return await _context.Users.FindAsync(id);
     }
 
-    public async Task<IEnumerable<User>?> GetAllAsync()
+    public async Task<bool> AddAsync(User entity)
     {
-        return await _context.Users.ToListAsync();
-    }
-
-    public async Task AddAsync(User entity)
-    {
-        
         await _context.Users.AddAsync(entity);
-        await _context.SaveChangesAsync();
+        return await _context.SaveChangesAsync() > 0;
     }
 
-    public async Task UpdateAsync(int id, User entity)
-    {
-        
-        var existingUser = await _context.Users.FindAsync(entity.Id);
-        
-        if (existingUser == null)
-        {
-            throw new KeyNotFoundException($"User with id {id} not found.");
-        }
-        
-        _context.Entry(existingUser).CurrentValues.SetValues(entity);
-        
-        await _context.SaveChangesAsync();
-    }
-
-    public async Task DeleteAsync(int id)
+    public async Task<bool> UpdateAsync() =>   
+         await _context.SaveChangesAsync() > 0;
+    
+    public async Task<bool> DeleteAsync(int id)
     {
         var user = await _context.Users.FindAsync(id);
-        
         if (user == null)
         {
             throw new KeyNotFoundException($"User with id {id} not found.");
         }
-        
         _context.Users.Remove(user);
-        await _context.SaveChangesAsync();
+        return await _context.SaveChangesAsync() > 0;
     }
 }

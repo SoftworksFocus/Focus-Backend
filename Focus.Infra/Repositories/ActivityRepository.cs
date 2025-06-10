@@ -1,9 +1,10 @@
+using Focus.Infra.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Focus.Infra.Repositories;
 using Focus.Domain.Entities;
 
-public class ActivityRepository
+public class ActivityRepository : IRepository<Activity>
 {
     private readonly FocusDbContext _context;
 
@@ -12,37 +13,39 @@ public class ActivityRepository
         _context = context;
     }
 
-    public async Task<Activity> GetByIdAsync(int id)
+    public async Task<Activity?> GetByIdAsync(int id)
     {
-        var  activity = await _context.Activities.FindAsync(id);
+        var  activity = await _context.Activities
+            .Include( a => a.User)
+            .FirstOrDefaultAsync(a => a.Id == id);
         return activity;
     }
 
-    public async Task<IEnumerable<Activity>> GetAllAsync()
+    public async Task<IEnumerable<Activity>?> GetAllAsync()
     {
-        var  activities = await _context.Activities.ToListAsync();
+        var  activities = await _context.Activities
+            .Include(u => u.User)
+            .ToListAsync();
         return activities;
     }
     
-    public async Task AddAsync(Activity entity)
+    public async Task<bool> AddAsync(Activity activity)
     {
-        await _context.Activities.AddAsync(entity);
-        await _context.SaveChangesAsync();
+        await _context.Activities.AddAsync(activity);
+        return await _context.SaveChangesAsync() > 0;
     }
 
-    public async Task UpdateAsync(Activity entity)
-    {
-        var existinActivity = await _context.Activities.FindAsync(entity.Id);
-        
-        _context.Activities.Update(entity);
-        await _context.SaveChangesAsync();
-    }
+    public async Task<bool> UpdateAsync() =>   
+        await _context.SaveChangesAsync() > 0;
 
-    public async Task DeleteAsync(int id)
+    public async Task<bool> DeleteAsync(int id)
     {
-        var entity = await  _context.Activities.FindAsync(id);
-
-        _context.Remove(entity);
-        await _context.SaveChangesAsync();
+        var activityToDelete = await  _context.Activities.FindAsync(id);
+        if (activityToDelete == null)
+        {
+            throw new KeyNotFoundException($"User with id {id} not found.");
+        }
+        _context.Remove(activityToDelete);
+        return await _context.SaveChangesAsync() > 0;
     }
 }

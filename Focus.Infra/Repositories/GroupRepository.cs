@@ -1,3 +1,4 @@
+using Focus.Infra.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Focus.Infra.Repositories;
@@ -12,44 +13,35 @@ public class GroupRepository : IRepository<Group>
         _context = context;
     }
 
-    public async Task<Group> GetByIdAsync(int id)
+    public async Task<Group?> GetByIdAsync(int id)
     {
         var group =  await _context.Groups.FindAsync(id);
-
         return group;
     }
 
-    public async Task<IEnumerable<Group>> GetAllAsync()
+    public async Task<IEnumerable<Group>?> GetAllAsync()
     {
-        var groups =   await _context.Groups.ToListAsync();
-
-        if (groups == null || !groups.Any())
-        {
-            throw new KeyNotFoundException($"Groups not found.");
-        }
-        
+        var groups = await _context.Groups.ToListAsync();
         return groups;
     }
 
-    public async Task AddAsync(Group entity)
+    public async Task<bool> AddAsync(Group group)
     {
-        await _context.Groups.AddAsync(entity);
-        await _context.SaveChangesAsync();
+        await _context.Groups.AddAsync(group);
+        return await _context.SaveChangesAsync() > 0;
     }
 
-    public async Task UpdateAsync(int id, Group entity)
-    {
-        var existingGroup = await _context.Groups.FindAsync(entity.Id);
-        
-        _context.Groups.Update(entity);
-        await _context.SaveChangesAsync();
-    }
+    public async Task<bool> UpdateAsync() =>   
+        await _context.SaveChangesAsync() > 0;
 
-    public async Task DeleteAsync(int id)
+    public async Task<bool> DeleteAsync(int id)
     {
-        var entity = await  _context.Groups.FindAsync(id);
-        
-        _context.Remove(entity);
-        await _context.SaveChangesAsync();
+        var group = await _context.Groups.FindAsync(id);
+        if (group == null)
+        {
+            throw new KeyNotFoundException($"Group with id {id} not found.");
+        }
+        _context.Remove(group);
+        return await _context.SaveChangesAsync() > 0;
     }
 }

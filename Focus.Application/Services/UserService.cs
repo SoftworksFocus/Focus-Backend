@@ -1,31 +1,20 @@
+using Focus.Application.DTO.User;
 using Focus.Application.Services.Interfaces;
 using Focus.Domain.Entities;
 using Focus.Infra.Repositories;
 
 namespace Focus.Application.Services;
 
-public class UserService : IService<User>
+public class UserService : IUserService
 {
     private readonly UserRepository _userRepository;
 
-    UserService(UserRepository userRepository)
+    public UserService(UserRepository userRepository)
     {
         _userRepository = userRepository;
     }
 
-    public async Task<User?> GetById(int id)
-    {
-        var user = await _userRepository.GetByIdAsync(id);
-        
-        if (user == null)
-        {
-            throw new KeyNotFoundException($"User with id {id} not found.");
-        }
-
-        return user;
-    }
-    
-    public async Task<IEnumerable<User>?> GetAll()
+    public async Task<IEnumerable<GetUserDto>?> GetAll()
     {
         var users = await  _userRepository.GetAllAsync();
         
@@ -33,49 +22,60 @@ public class UserService : IService<User>
         {
             throw new KeyNotFoundException("No users found.");
         }
+        var returnUsers = users.Select(GetUserDto.FromUser).ToList();
         
-        return users;
+        return returnUsers;
     }
-
-    public async Task Add(User user)
+    
+    public async Task<GetUserDto?> GetById(int id)
     {
+        var user = await _userRepository.GetByIdAsync(id);
         if (user == null)
         {
-            throw new ArgumentNullException(nameof(user), "User cannot be null.");
+            throw new KeyNotFoundException($"User with id {id} not found.");
         }
-
-        await _userRepository.AddAsync(user);
+        var returnUser = GetUserDto.FromUser(user);
+        return returnUser;
     }
 
-    public async Task Update(int id, User user)
+    public async Task Add(CreateUserDto userDto)
     {
-        var existingUser = await _userRepository.GetByIdAsync(user.Id);
-        
-        if (user == null)
+        if (userDto == null)
         {
-            throw new ArgumentNullException(nameof(user), "User cannot be null.");
+            throw new ArgumentNullException(nameof(userDto), "User cannot be null.");
         }
-        
-        if (existingUser == null)
+        var user = userDto.ToUser();
+        if (!await _userRepository.AddAsync(user))
         {
-            throw new KeyNotFoundException($"User with id {user.Id} not found.");
+            throw new Exception("Failed to add user.");
         }
+    }
 
-        await _userRepository.UpdateAsync(id, user);
-
+    public async Task Update(int id, UpdateUserDto newUserDto)
+    {
+        var updateUser = await _userRepository.GetByIdAsync(id);
+        if (newUserDto == null)
+        {
+            throw new ArgumentNullException(nameof(newUserDto), "User cannot be null.");
+        }
+        if (updateUser == null)
+        {
+            throw new KeyNotFoundException($"User with id {id} not found on service.");
+        }
+        newUserDto.MapTo(updateUser);
+        if (!await _userRepository.UpdateAsync())
+        {
+            throw new Exception($"Failed to update user with id {id}.");
+        }
+            
     }
 
     public async Task Delete(int id)
     {
-        var existingUser = await _userRepository.GetByIdAsync(id);
-        
-        if (existingUser == null)
+        if (!await _userRepository.DeleteAsync(id))
         {
-            throw new KeyNotFoundException($"User with id {id} not found.");
+            throw new Exception($"Failed to delete user with id {id}.");
         }
-        
-        await _userRepository.DeleteAsync(existingUser.Id);
     }
-    
     
 }

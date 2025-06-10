@@ -1,75 +1,76 @@
+using Focus.Application.DTO.Group;
 using Focus.Application.Services.Interfaces;
-using Focus.Domain.Entities;
 using Focus.Infra.Repositories;
 
 namespace Focus.Application.Services;
 
-public class GroupService : IService<Group>
+public class GroupService : IGroupService
 {
     private readonly GroupRepository _groupRepository;
     
-    GroupService(GroupRepository groupRepository)
+    public GroupService(GroupRepository groupRepository)
     {
         _groupRepository = groupRepository;
     }
 
-    public async Task<Group?> GetById(int id)
+    public async Task<GetGroupDto?> GetById(int id)
     {
         var group = await _groupRepository.GetByIdAsync(id);
-        
         if (group == null)
         {
             throw new KeyNotFoundException($"Group with {id} not found.");
         }
-        
-        return group;
+        return GetGroupDto.FromGroup(group);
     }
 
-    public async Task<IEnumerable<Group>?> GetAll()
+    public async Task<IEnumerable<GetGroupDto>?> GetAll()
     {
         var groups =  await _groupRepository.GetAllAsync();
 
-        if (groups == null)
+        if (groups == null || !groups.Any())
         {
             throw new KeyNotFoundException($"Groups not found.");
         }
-        
-        return groups;
+        var groupsDto = groups.ToList().Select(GetGroupDto.FromGroup);
+        return groupsDto;
     }
 
-    public async Task Add(Group group)
+    public async Task Add(CreateGroupDto createGroupDto)
     {
-        if (group == null)
+        if (createGroupDto == null)
         {
-            throw new ArgumentNullException(nameof(group), "Group cannot be null.");
+            throw new ArgumentNullException(nameof(createGroupDto), "Group cannot be null.");
         }
-        
-        await _groupRepository.AddAsync(group);
+        var group = createGroupDto.ToGroup();
+        if (!await _groupRepository.AddAsync(group))
+        {
+            throw new Exception("Failed to add group.");
+        }
     }
 
-    public async Task Update(int id, Group group)
+    public async Task Update(int id, UpdateGroupDto newGroupDto)
     {
         var existingGroup = await _groupRepository.GetByIdAsync(id);
-
         if (existingGroup == null)
         {
-            throw new ArgumentNullException(nameof(existingGroup), "Group cannot be null.");
+            throw new ArgumentNullException($"Group with {id} not found.");
         }
-
-        await _groupRepository.UpdateAsync(id, existingGroup);
+        if (newGroupDto == null)
+        {
+            throw new ArgumentNullException(nameof(newGroupDto), "Group cannot be null.");
+        }
+        newGroupDto.MapTo(existingGroup);
+        if(!await _groupRepository.UpdateAsync())
+        {
+            throw new Exception($"Group with {id} not Updated.");
+        }
     }
 
     public async Task Delete(int id)
     {
-        var existingGroup = await _groupRepository.GetByIdAsync(id);
-
-        if (existingGroup == null)
+        if (!await _groupRepository.DeleteAsync(id))
         {
-            throw new ArgumentNullException(nameof(existingGroup), "Group cannot be null.");
+            throw new Exception($"Group with {id} not Deleted.");
         }
-
-        await _groupRepository.DeleteAsync(id);
     }
-    
-    
 }
