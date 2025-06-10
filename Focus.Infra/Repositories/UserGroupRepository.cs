@@ -21,23 +21,14 @@ public class UserGroupRepository
         return await _context.UserGroups.ToListAsync();
     }
 
-    public async Task AddAsync(UserGroup userGroup)
+    public async Task MakeRelationship(UserGroup relationship)
     {
-        await _context.UserGroups.AddAsync(userGroup);
+        await _context.UserGroups.AddAsync(relationship);
         await _context.SaveChangesAsync();
     }
 
-    public async Task UpdateAsync(int userId, int groupId, UserGroup newUserGroup)
+    public async Task UpdateAsync()
     {
-        var userGroupToUpdate = await _context.UserGroups.FindAsync(userId, groupId);
-        
-        if (userGroupToUpdate == null)
-        {
-            throw new KeyNotFoundException($"UserGroup not found.");
-        }
-        
-        _context.Entry(userGroupToUpdate).CurrentValues.SetValues(newUserGroup);
-        
         await _context.SaveChangesAsync();
     }
 

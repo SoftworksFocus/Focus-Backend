@@ -53,31 +53,34 @@ public class UserGroupService
          return activity;
      }
     
-     public async Task Add(UserGroup activity)
+     public async Task UserJoinGroup(int userId, int groupId, bool isAdmin = false)
      {
-         if (activity == null)
-         {
-             throw new ArgumentNullException(nameof(activity), "UserGroup cannot be null.");
-         }
-         
-         await _userGroupRepository.AddAsync(activity);
+        var memberInGroup = await _userGroupRepository.GetByIdAsync(userId, groupId);
+        if (memberInGroup != null)
+        {
+            throw new ArgumentException($"User with id {userId} is already a member of group with id {groupId}."); // Todo: remove the id references in the messages
+        }
+        var relationship = new UserGroup
+        {
+            UserId = userId,
+            GroupId = groupId,
+            IsAdmin = isAdmin
+        };
+        await _userGroupRepository.MakeRelationship(relationship);
      }
     
-     public async Task Update(int userId, int groupId, UserGroup activity)
+     public async Task ToggleRoleAdmin(int userId, int groupId)
      {
-         
          var existingUserGroup = await _userGroupRepository.GetByIdAsync(userId, groupId);
          
          if (existingUserGroup == null)
          {
-             throw new ArgumentNullException(nameof(existingUserGroup), "UserGroup cannot be null.");
+             throw new ArgumentNullException(nameof(existingUserGroup), "User is not in this group.");
          }
          
-         if (existingUserGroup == null)
-         {
-             throw new KeyNotFoundException($"UserGroup not found.");
-         }
-         await _userGroupRepository.UpdateAsync(userId, groupId, activity);
+         existingUserGroup.IsAdmin = !existingUserGroup.IsAdmin;
+         
+         await _userGroupRepository.UpdateAsync();
      }
     
      public async Task Delete(int userId, int groupId)
