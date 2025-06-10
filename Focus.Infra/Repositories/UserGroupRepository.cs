@@ -51,4 +51,14 @@ public class UserGroupRepository
         _context.UserGroups.Remove(user);
         await _context.SaveChangesAsync();
     }
+
+    public async Task<IEnumerable<User>?> GetAllMembersAsync(int groupId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<IEnumerable<Group>> GetAllGroups(int userId)
+    {
+        throw new NotImplementedException();
+    }
 }

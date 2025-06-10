@@ -1,5 +1,7 @@
+using Focus.Application.DTO.Group;
 using Focus.Domain.Entities;
 using Focus.Infra.Repositories;
+using Focus.Application.DTO.User;
 
 namespace Focus.Application.Services;
 
@@ -12,16 +14,32 @@ public class UserGroupService
          _userGroupRepository = userGroupRepository;
      }
      
-     public async Task<IEnumerable<UserGroup>?> GetAll() 
+     public async Task<IEnumerable<SummaryUserDto>?> GetAllMembersFromGroup(int groupId) 
      {
-         var usersGroups = await _userGroupRepository.GetAllAsync();
+         var groupMembers = await _userGroupRepository.GetAllMembersAsync(groupId);
          
-         if (usersGroups == null || !usersGroups.Any())
+         if (groupMembers == null || !groupMembers.Any())
          {
              throw new KeyNotFoundException("No usersGroups found");
          }
          
-         return usersGroups;
+         var returnUsersGroups = groupMembers.Select(SummaryUserDto.FromUser).ToList();
+         
+         return returnUsersGroups;
+     }
+     
+     public async Task<IEnumerable<SummaryGroupDto>?> GetAllGroupsFromUser(int userId) 
+     {
+         var userGroups = await _userGroupRepository.GetAllGroups(userId);
+         
+         if (userGroups == null || !userGroups.Any())
+         {
+             throw new KeyNotFoundException("No usersGroups found");
+         }
+         
+         var returnUsersGroups = userGroups.Select(SummaryGroupDto.FromGroup).ToList();
+         
+         return returnUsersGroups;
      }
      
      public async Task<UserGroup?> GetById(int userId, int groupId)
