@@ -1,9 +1,9 @@
 namespace Focus.Application.DTO.User;
 using Domain.Entities;
-public class SumaryUserDto : PlainUserDto
+public class SummaryUserDto : PlainUserDto
 {
-    public static SumaryUserDto FromUser(User user) =>
-        new SumaryUserDto
+    public static SummaryUserDto FromUser(User user) =>
+        new SummaryUserDto
         {
             Username = user.Username,
             Email = user.Email,
