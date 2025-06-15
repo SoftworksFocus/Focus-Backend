@@ -17,28 +17,14 @@ public class UserGroupService
      public async Task<IEnumerable<SummaryUserDto>?> GetAllMembersFromGroup(int groupId) 
      {
          var groupMembers = await _userGroupRepository.GetAllMembersAsync(groupId);
-         
-         if (groupMembers == null || !groupMembers.Any())
-         {
-             throw new KeyNotFoundException("No usersGroups found");
-         }
-         
          var returnUsersGroups = groupMembers.Select(SummaryUserDto.FromUser).ToList();
-         
          return returnUsersGroups;
      }
      
-     public async Task<IEnumerable<SummaryGroupDto>?> GetAllGroupsFromUser(int userId) 
+     public async Task<IEnumerable<SummaryGroupDto>?> GetAllGroupsFromUser(int userId) // Todo: change the logic of the others gets 
      {
          var userGroups = await _userGroupRepository.GetAllGroups(userId);
-         
-         if (userGroups == null || !userGroups.Any())
-         {
-             throw new KeyNotFoundException("No usersGroups found");
-         }
-         
          var returnUsersGroups = userGroups.Select(SummaryGroupDto.FromGroup).ToList();
-         
          return returnUsersGroups;
      }
      
@@ -58,7 +44,7 @@ public class UserGroupService
         var memberInGroup = await _userGroupRepository.GetByIdAsync(userId, groupId);
         if (memberInGroup != null)
         {
-            throw new ArgumentException($"User with id {userId} is already a member of group with id {groupId}."); // Todo: remove the id references in the messages
+            throw new ArgumentException($"User is already a member of group ."); // Todo: remove the id references in the messages
         }
         var relationship = new UserGroup
         {
@@ -77,13 +63,11 @@ public class UserGroupService
          {
              throw new ArgumentNullException(nameof(existingUserGroup), "User is not in this group.");
          }
-         
          existingUserGroup.IsAdmin = !existingUserGroup.IsAdmin;
-         
          await _userGroupRepository.UpdateAsync();
      }
     
-     public async Task Delete(int userId, int groupId)
+     public async Task LeaveGroup(int userId, int groupId)
      {
          await _userGroupRepository.DeleteAsync(userId, groupId);
      }

@@ -7,16 +7,18 @@ namespace Focus.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    
+
     public class UserController : ControllerBase
     {
         private readonly UserService _userService;
+        private readonly UserGroupService _userGroupService;
 
-        public UserController(UserService userService)
+        public UserController(UserService userService, UserGroupService userGroupService)
         {
             _userService = userService;
+            _userGroupService = userGroupService;
         }
-        
+
         // GET: api/<User>
         [HttpGet]
         public async Task<IActionResult> GetAll()
@@ -104,6 +106,86 @@ namespace Focus.API.Controllers
             try
             {
                 await _userService.Delete(id);
+                return Ok();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        // GET api/<User>/groups/1
+        [HttpGet("groups/{userId:int}")]
+        public async Task<IActionResult> GetAllGroupsFromUser([FromRoute] int userId)
+        {
+            try
+            {
+                var returnUsersGroups = await _userGroupService.GetAllGroupsFromUser(userId);
+                return Ok(returnUsersGroups);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        // POST api/<User>/join//1/2
+        [HttpPost("join/{groupId:int}/{userId:int}")]
+        public async Task<IActionResult> JoinGroup([FromRoute] int groupId, [FromRoute] int userId)
+        {
+            try
+            {
+                await _userGroupService.UserJoinGroup(userId, groupId);
+                return Ok();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        // PUT api/<User>/toggle-admin/1/2
+        [HttpPut("toggle-admin/{groupId:int}/{userId:int}")]
+        public async Task<IActionResult> ToggleAdminRole([FromRoute] int groupId, [FromRoute] int userId)
+        {
+            try
+            {
+                await _userGroupService.ToggleRoleAdmin(userId, groupId);
+                return Ok();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        // DELETE api/<User>/leave/{groupId:int}/{userId:int}
+        [HttpDelete("leave/{groupId:int}/{userId:int}")]
+        public async Task<IActionResult> LeaveGroup([FromRoute] int groupId, [FromRoute] int userId)
+        {
+            try
+            {
+                await _userGroupService.LeaveGroup(userId, groupId);
                 return Ok();
             }
             catch (KeyNotFoundException ex)

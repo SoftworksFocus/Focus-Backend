@@ -31,7 +31,7 @@ public class GroupService : IGroupService
         {
             throw new KeyNotFoundException($"Groups not found.");
         }
-        var groupsDto = groups.ToList().Select(GetGroupDto.FromGroup);
+        var groupsDto = groups.Select(GetGroupDto.FromGroup);
         return groupsDto;
     }
 

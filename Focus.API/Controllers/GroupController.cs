@@ -1,4 +1,5 @@
 using Focus.Application.DTO.Group;
+using Focus.Application.DTO.User;
 using Focus.Application.Services;
 using Focus.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -10,12 +11,14 @@ namespace Focus.API.Controllers
     public class GroupController : ControllerBase
     {
         private readonly GroupService _groupService;
+        private readonly UserGroupService _userGroupService;
 
-        public GroupController(GroupService groupService)
+        public GroupController(GroupService groupService, UserGroupService userGroupService)
         {
-            _groupService =  groupService;
+            _groupService = groupService;
+            _userGroupService = userGroupService;
         }
-        
+
         // GET: api/<GroupController>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<GetGroupDto>>> GetGroups()
@@ -101,6 +104,25 @@ namespace Focus.API.Controllers
             catch (ArgumentNullException ex)
             {
                 return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        // GET api/<GroupController>/5/members
+        [HttpGet("{id:int}/members")]
+        public async Task<ActionResult<IEnumerable<SummaryUserDto>>> GetMembers(int id)
+        {
+            try
+            {
+                var members = await _userGroupService.GetAllMembersFromGroup(id);
+                return Ok(members);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
             }
             catch (Exception ex)
             {

@@ -21,6 +21,21 @@ public class UserGroupRepository
         return await _context.UserGroups.ToListAsync();
     }
 
+    public async Task<IEnumerable<Group>> GetAllGroups(int userId)
+    {
+        if(await _context.Users.FindAsync(userId) == null)
+        {
+            throw new KeyNotFoundException($"User not found.");
+        }
+        var userGroups = await _context.UserGroups
+            .Include(ug => ug.Group)
+            .Where(ug => ug.UserId == userId)
+            .ToListAsync();
+
+        var groups = userGroups.Select(ug => ug.Group).ToList();
+        return groups;
+    }
+    
     public async Task MakeRelationship(UserGroup relationship)
     {
         await _context.UserGroups.AddAsync(relationship);
@@ -34,22 +49,28 @@ public class UserGroupRepository
 
     public async Task DeleteAsync(int userId, int groupId)
     {
-        var user = await _context.UserGroups.FindAsync(userId, groupId);
-        if (user == null)
+        var relationship = await _context.UserGroups.FindAsync(userId, groupId);
+        if (relationship == null)
         {
-            throw new KeyNotFoundException($"UserGroup not found.");
+            throw new KeyNotFoundException($"User not in group.");
         }
-        _context.UserGroups.Remove(user);
+        _context.UserGroups.Remove(relationship);
         await _context.SaveChangesAsync();
     }
 
     public async Task<IEnumerable<User>?> GetAllMembersAsync(int groupId)
     {
-        throw new NotImplementedException();
+        if (await _context.Groups.FindAsync(groupId) == null)
+        {
+            throw new KeyNotFoundException($"Group not found.");
+        }
+        
+        var groupMembers = await _context.UserGroups
+            .Include(ug => ug.User)
+            .Where(ug => ug.GroupId == groupId)
+            .ToListAsync();
+        var users = groupMembers.Select(ug => ug.User).ToList();
+        return users;
     }
 
-    public async Task<IEnumerable<Group>> GetAllGroups(int userId)
-    {
-        throw new NotImplementedException();
-    }
 }
