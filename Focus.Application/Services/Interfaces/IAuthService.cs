@@ -1,6 +1,8 @@
+using Focus.Application.DTO.User;
+
 namespace Focus.Application.Services.Interfaces;
 
-public class IAuthService
+public interface IAuthService
 {
-    
+    public Task<string> AuthenticateAsync(LoginUserDto loginUserDto);
 }
