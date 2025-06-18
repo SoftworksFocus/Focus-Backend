@@ -1,5 +1,6 @@
 using Focus.Application.DTO.Group;
 using Focus.Application.Services;
+using Focus.Application.Services.Interfaces;
 using Focus.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,9 +10,9 @@ namespace Focus.API.Controllers
     [ApiController]
     public class GroupController : ControllerBase
     {
-        private readonly GroupService _groupService;
+        private readonly IGroupService _groupService;
 
-        public GroupController(GroupService groupService)
+        public GroupController(IGroupService groupService)
         {
             _groupService =  groupService;
         }

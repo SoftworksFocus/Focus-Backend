@@ -1,6 +1,7 @@
 
 using Focus.Application.DTO.Activity;
 using Focus.Application.Services;
+using Focus.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Focus.Domain.Entities;
 
@@ -10,9 +11,9 @@ namespace Focus.API.Controllers
     [ApiController]
     public class ActivityController : ControllerBase
     {
-        private readonly ActivityService _activityService;
+        private readonly IActivityService _activityService;
 
-        public ActivityController(ActivityService activityService)
+        public ActivityController(IActivityService activityService)
         {
             _activityService = activityService;
         }

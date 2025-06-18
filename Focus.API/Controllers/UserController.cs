@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Focus.Application.Services;
 using Focus.Application.DTO.User;
+using Focus.Application.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace Focus.API.Controllers
@@ -10,9 +12,9 @@ namespace Focus.API.Controllers
     
     public class UserController : ControllerBase
     {
-        private readonly UserService _userService;
+        private readonly IUserService _userService;
 
-        public UserController(UserService userService)
+        public UserController(IUserService userService)
         {
             _userService = userService;
         }
