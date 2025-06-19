@@ -1,6 +1,7 @@
 using Focus.Application.DTO.User;
 using Focus.Application.Services.Interfaces;
 using Focus.Domain.Entities;
+using Focus.Domain.Specifications;
 using Focus.Infra.Repositories;
 
 namespace Focus.Application.Services;
@@ -14,16 +15,10 @@ public class UserService : IUserService
         _userRepository = userRepository;
     }
 
-    public async Task<IEnumerable<GetUserDto>?> GetAll()
+    public async Task<List<GetUserDto>?> GetAllAsync(ISpecification<User>? filterSpec = null)
     {
-        var users = await  _userRepository.GetAllAsync();
-        
-        if (users == null || !users.Any())
-        {
-            throw new KeyNotFoundException("No users found.");
-        }
+        var users = await _userRepository.ListAsync(filterSpec);
         var returnUsers = users.Select(GetUserDto.FromUser).ToList();
-        
         return returnUsers;
     }
     

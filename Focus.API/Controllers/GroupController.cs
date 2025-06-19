@@ -1,6 +1,7 @@
 using Focus.Application.DTO.Group;
 using Focus.Application.DTO.User;
 using Focus.Application.Services;
+using Focus.Application.Specifications;
 using Focus.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,11 +22,15 @@ namespace Focus.API.Controllers
 
         // GET: api/<GroupController>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<GetGroupDto>>> GetGroups()
+        public async Task<ActionResult<IEnumerable<GetGroupDto>>> GetGroups(
+            [FromQuery] string? groupnameFilter = null,
+            [FromQuery] string? descriptionFilter = null
+            )
         {
             try
             {
-                var groups = await _groupService.GetAll();
+                var filterSpec = new GroupFilterSpecification(groupnameFilter, descriptionFilter);
+                var groups = await _groupService.GetAllAsync(filterSpec);
                 return Ok(groups);
             }
             catch (KeyNotFoundException ex)

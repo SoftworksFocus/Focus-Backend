@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Focus.Application.Services;
 using Focus.Application.DTO.User;
+using Focus.Application.Specifications;
 
 
 namespace Focus.API.Controllers
@@ -21,11 +22,15 @@ namespace Focus.API.Controllers
 
         // GET: api/<User>
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetUsers(
+            [FromQuery] string? usernameFilter = null,
+            [FromQuery] string? emailFilter = null
+            )
         {
             try
             {
-                var returnUsers = await _userService.GetAll();
+                var spec = new UserFilterSpecification(usernameFilter, emailFilter);
+                var returnUsers = await _userService.GetAllAsync(spec);
                 return Ok(returnUsers);
             }
             catch (KeyNotFoundException ex)

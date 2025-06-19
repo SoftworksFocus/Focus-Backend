@@ -1,6 +1,7 @@
 using Focus.Application.DTO.Activity;
 using Focus.Application.Services.Interfaces;
 using Focus.Domain.Entities;
+using Focus.Domain.Specifications;
 using Focus.Infra.Repositories;
 
 namespace Focus.Application.Services;
@@ -25,16 +26,10 @@ public class ActivityService : IActivityService
         return returnActivity;
     }
 
-    public async Task<IEnumerable<GetActivityDto>?> GetAll() 
+    public async Task<List<GetActivityDto>?> GetAllAsync(ISpecification<Activity>? filterSpec = null)
     {
-        var activities = await _activityRepository.GetAllAsync();
-        if (activities == null || !activities.Any())
-        {
-            throw new KeyNotFoundException("No activities found");
-        }
-        var returnActivities = activities.Select(GetActivityDto.FromActivity);
-        Console.WriteLine(returnActivities);
-        
+        var activities = await _activityRepository.ListAsync(filterSpec);
+        var returnActivities = activities.Select(GetActivityDto.FromActivity).ToList();
         return returnActivities;
     }
 

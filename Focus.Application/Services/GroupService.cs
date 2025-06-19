@@ -1,5 +1,7 @@
 using Focus.Application.DTO.Group;
 using Focus.Application.Services.Interfaces;
+using Focus.Domain.Entities;
+using Focus.Domain.Specifications;
 using Focus.Infra.Repositories;
 
 namespace Focus.Application.Services;
@@ -23,16 +25,10 @@ public class GroupService : IGroupService
         return GetGroupDto.FromGroup(group);
     }
 
-    public async Task<IEnumerable<GetGroupDto>?> GetAll()
+    public async Task<List<GetGroupDto>?> GetAllAsync(ISpecification<Group>? filterSpec = null)
     {
-        var groups =  await _groupRepository.GetAllAsync();
-
-        if (groups == null || !groups.Any())
-        {
-            throw new KeyNotFoundException($"Groups not found.");
-        }
-        var groupsDto = groups.Select(GetGroupDto.FromGroup);
-        return groupsDto;
+        var groups = await _groupRepository.ListAsync(filterSpec);
+        return groups.Select(GetGroupDto.FromGroup).ToList();
     }
 
     public async Task Add(CreateGroupDto createGroupDto)
