@@ -16,6 +16,7 @@ builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<ActivityService>();
 builder.Services.AddScoped<GroupService>();
 builder.Services.AddScoped<UserGroupService>();
+builder.Services.AddScoped<FeedService>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddDbContext<FocusDbContext>(
     options => options.UseNpgsql(builder.Configuration.GetConnectionString("DbConnection")));
