@@ -1,5 +1,6 @@
 using Focus.Application.DTO.Activity;
 using Focus.Application.Services;
+using Focus.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 namespace Focus.API.Controllers;
 
@@ -9,9 +10,9 @@ namespace Focus.API.Controllers;
     public class FeedController : ControllerBase
     {
 
-        private readonly FeedService _feedService;
+        private readonly IFeedService _feedService;
         
-        public FeedController(FeedService feedService)
+        public FeedController(IFeedService feedService)
         {
             _feedService = feedService;
         }

@@ -1,9 +1,7 @@
-using Focus.Application.DTO.Group;
-
 namespace Focus.Application.DTO.Activity;
 using User;
 using Domain.Entities;
-using DTO.User;
+using Group;
 
 public class GetActivityDto : PlainActivityDto
 {

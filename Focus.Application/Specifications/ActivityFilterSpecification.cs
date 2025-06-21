@@ -13,11 +13,11 @@ namespace Focus.Application.Specifications
             AddInclude(a => a.User);
             AddInclude(a => a.Group);
         }
-
-        public ActivityFilterSpecification(int ownerId) : base(BuildPredicate(ownerId))
-        {
-            throw new NotImplementedException();
-        }
+        
+        // public ActivityFilterSpecification(int ownerId) : base(BuildPredicate(ownerId))
+        // {
+        //     throw new NotImplementedException();
+        // }
 
         private static Expression<Func<Activity, bool>> BuildPredicate(int ownerId)
         {

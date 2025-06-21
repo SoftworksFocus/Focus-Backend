@@ -21,7 +21,7 @@ namespace Focus.Application.Specifications
             }
             if (!string.IsNullOrEmpty(description))
             {
-                predicate = predicate.And(g => g.Description!.Contains(description));
+                predicate = predicate.And(g => g.Description!.Contains(description)); // Description cannot be null, see the Create method in Group Services
             }
             return predicate;
         }

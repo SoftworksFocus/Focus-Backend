@@ -21,8 +21,8 @@ public class FeedService : IFeedService
 
     public async Task<List<GetActivityDto>> GetFeedForUserAsync(int userId)
     {
-        var groupsIds = _userGroupRepository.GetAllGroups(userId).Result.Select(g => g.Id).ToList();
-        var feedSpec = new FeedActivitySpecification(userId, groupsIds);
+        var groupsIds = await _userGroupRepository.GetAllGroups(userId);
+        var feedSpec = new FeedActivitySpecification(userId, groupsIds.Select(g => g.Id).ToList());
         var filteredActivities = await _activityRepository.ListAsync(feedSpec);
         var returnActivities = filteredActivities.Select(GetActivityDto.FromActivity).ToList();
         return returnActivities;

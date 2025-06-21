@@ -7,9 +7,13 @@ namespace Focus.Infra.Common
     {
         public static IQueryable<T> GetQuery(IQueryable<T> inputQuery, ISpecification<T>? spec)
         {
+            if (spec == null)
+            {
+                return inputQuery;
+            }
             var query = inputQuery;
 
-            query = query.Where(spec!.Criteria);
+            query = query.Where(spec.Criteria);
 
             query = spec.Includes.Aggregate(query, 
                 (current, include) => current.Include(include));

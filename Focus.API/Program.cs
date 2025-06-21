@@ -1,12 +1,8 @@
-using Focus.Application.DTO.Activity;
-using Focus.Application.DTO.Group;
 using Focus.Application.Services;
 using Focus.Infra;
 using Microsoft.EntityFrameworkCore;
 using Focus.Application.Services.Interfaces;
-using Focus.Domain.Entities;
 using Focus.Infra.Repositories;
-using Focus.Application.DTO.User;
 using Focus.Infra.Repositories.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
