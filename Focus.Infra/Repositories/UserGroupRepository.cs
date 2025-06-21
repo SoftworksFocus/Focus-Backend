@@ -1,9 +1,10 @@
+using Focus.Infra.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Focus.Infra.Repositories;
 using Focus.Domain.Entities;
 
-public class UserGroupRepository
+public class UserGroupRepository : IUserGroupRepository
 {
     private readonly FocusDbContext _context;
     public UserGroupRepository(FocusDbContext context)

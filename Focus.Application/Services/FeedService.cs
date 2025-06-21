@@ -10,10 +10,10 @@ namespace Focus.Application.Services;
 
 public class FeedService : IFeedService
 {
-    private readonly ActivityRepository _activityRepository; 
-    private readonly UserGroupRepository _userGroupRepository; // Todo: Refactor to use interface
+    private readonly IActivityRepository _activityRepository; 
+    private readonly IUserGroupRepository _userGroupRepository;
 
-    public FeedService(ActivityRepository activityRepository, UserGroupRepository userGroupRepository)
+    public FeedService(IActivityRepository activityRepository, IUserGroupRepository userGroupRepository)
     {
         _activityRepository = activityRepository;
         _userGroupRepository = userGroupRepository;

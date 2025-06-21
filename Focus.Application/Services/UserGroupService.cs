@@ -1,15 +1,16 @@
 using Focus.Application.DTO.Group;
 using Focus.Domain.Entities;
-using Focus.Infra.Repositories;
 using Focus.Application.DTO.User;
+using Focus.Application.Services.Interfaces;
+using Focus.Infra.Repositories.Interfaces;
 
 namespace Focus.Application.Services;
 
-public class UserGroupService
+public class UserGroupService : IUserGroupService
 {
-     private readonly UserGroupRepository _userGroupRepository;
+     private readonly IUserGroupRepository _userGroupRepository;
     
-     public UserGroupService(UserGroupRepository userGroupRepository)
+     public UserGroupService(IUserGroupRepository userGroupRepository)
      {
          _userGroupRepository = userGroupRepository;
      }
@@ -39,7 +40,7 @@ public class UserGroupService
          return activity;
      }
     
-     public async Task UserJoinGroup(int userId, int groupId, bool isAdmin = false)
+     public async Task AddUserToGroupAsync(int userId, int groupId, bool isAdmin = false)
      {
         var memberInGroup = await _userGroupRepository.GetByIdAsync(userId, groupId);
         if (memberInGroup != null)
@@ -67,7 +68,7 @@ public class UserGroupService
          await _userGroupRepository.UpdateAsync();
      }
     
-     public async Task LeaveGroup(int userId, int groupId)
+     public async Task RemoveUserFromGroupAsync(int userId, int groupId)
      {
          await _userGroupRepository.DeleteAsync(userId, groupId);
      }

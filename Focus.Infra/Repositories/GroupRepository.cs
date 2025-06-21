@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Focus.Infra.Repositories;
 using Focus.Domain.Entities;
 
-public class GroupRepository : IRepository<Group>
+public class GroupRepository : IGroupRepository
 {
     private readonly FocusDbContext _context;
 

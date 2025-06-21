@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Focus.Infra.Repositories;
 using Focus.Domain.Entities;
 
-public class ActivityRepository : IRepository<Activity>
+public class ActivityRepository : IActivityRepository
 {
     private readonly FocusDbContext _context;
 

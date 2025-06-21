@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Focus.Application.Services;
 using Focus.Application.DTO.User;
+using Focus.Application.Services.Interfaces;
 using Focus.Application.Specifications;
+using Focus.Domain.Entities;
 
 
 namespace Focus.API.Controllers
@@ -11,10 +13,11 @@ namespace Focus.API.Controllers
 
     public class UserController : ControllerBase
     {
-        private readonly UserService _userService;
-        private readonly UserGroupService _userGroupService;
+        private readonly IUserService _userService;
+        private readonly IUserGroupService _userGroupService;
 
-        public UserController(UserService userService, UserGroupService userGroupService)
+        public UserController(IUserService userService, IUserGroupService userGroupService
+            )
         {
             _userService = userService;
             _userGroupService = userGroupService;
@@ -148,7 +151,7 @@ namespace Focus.API.Controllers
         {
             try
             {
-                await _userGroupService.UserJoinGroup(userId, groupId);
+                await _userGroupService.AddUserToGroupAsync(userId, groupId);
                 return Ok();
             }
             catch (ArgumentException ex)
@@ -190,7 +193,7 @@ namespace Focus.API.Controllers
         {
             try
             {
-                await _userGroupService.LeaveGroup(userId, groupId);
+                await _userGroupService.RemoveUserFromGroupAsync(userId, groupId);
                 return Ok();
             }
             catch (KeyNotFoundException ex)

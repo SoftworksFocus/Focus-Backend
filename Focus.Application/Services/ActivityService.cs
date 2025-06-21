@@ -3,14 +3,14 @@ using Focus.Application.Services.Interfaces;
 using Focus.Domain.Entities;
 using Focus.Domain.Specifications;
 using Focus.Infra.Repositories;
+using Focus.Infra.Repositories.Interfaces;
 
 namespace Focus.Application.Services;
 
-public class ActivityService : IActivityService
-{
-    private readonly ActivityRepository _activityRepository;
+public class ActivityService : IActivityService {
+    private readonly IActivityRepository _activityRepository;
 
-    public ActivityService(ActivityRepository activityRepository)
+    public ActivityService(IActivityRepository activityRepository)
     {
         _activityRepository = activityRepository;
     }

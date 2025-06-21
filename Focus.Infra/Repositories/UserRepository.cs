@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 namespace Focus.Infra.Repositories;
 using Focus.Domain.Entities;
 
-public class UserRepository : IRepository<User>
+public class UserRepository : IUserRepository
 {
     private readonly FocusDbContext _context;
     public UserRepository(FocusDbContext context)

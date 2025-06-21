@@ -3,14 +3,15 @@ using Focus.Application.Services.Interfaces;
 using Focus.Domain.Entities;
 using Focus.Domain.Specifications;
 using Focus.Infra.Repositories;
+using Focus.Infra.Repositories.Interfaces;
 
 namespace Focus.Application.Services;
 
 public class GroupService : IGroupService
 {
-    private readonly GroupRepository _groupRepository;
+    private readonly IGroupRepository _groupRepository;
     
-    public GroupService(GroupRepository groupRepository)
+    public GroupService(IGroupRepository groupRepository)
     {
         _groupRepository = groupRepository;
     }
