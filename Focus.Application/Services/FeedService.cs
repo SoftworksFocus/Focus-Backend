@@ -1,0 +1,31 @@
+using Focus.Application.DTO.Activity;
+using Focus.Application.Services.Interfaces;
+using Focus.Application.Specifications;
+using Focus.Domain.Entities;
+using Focus.Domain.Specifications;
+using Focus.Infra.Repositories;
+using Focus.Infra.Repositories.Interfaces;
+
+namespace Focus.Application.Services;
+
+public class FeedService : IFeedService
+{
+    private readonly IActivityRepository _activityRepository; 
+    private readonly IUserGroupRepository _userGroupRepository;
+
+    public FeedService(IActivityRepository activityRepository, IUserGroupRepository userGroupRepository)
+    {
+        _activityRepository = activityRepository;
+        _userGroupRepository = userGroupRepository;
+    }
+
+    public async Task<List<GetActivityDto>> GetFeedForUserAsync(int userId)
+    {
+        var groupsIds = await _userGroupRepository.GetAllGroups(userId);
+        var feedSpec = new FeedActivitySpecification(userId, groupsIds.Select(g => g.Id).ToList());
+        var filteredActivities = await _activityRepository.ListAsync(feedSpec);
+        var returnActivities = filteredActivities.Select(GetActivityDto.FromActivity).ToList();
+        return returnActivities;
+    }
+
+}

@@ -1,6 +1,8 @@
 
 using Focus.Application.DTO.Activity;
 using Focus.Application.Services;
+using Focus.Application.Services.Interfaces;
+using Focus.Application.Specifications;
 using Microsoft.AspNetCore.Mvc;
 using Focus.Domain.Entities;
 
@@ -10,20 +12,24 @@ namespace Focus.API.Controllers
     [ApiController]
     public class ActivityController : ControllerBase
     {
-        private readonly ActivityService _activityService;
+        private readonly IActivityService _activityService;
 
-        public ActivityController(ActivityService activityService)
+        public ActivityController(IActivityService activityService)
         {
             _activityService = activityService;
         }
 
         // GET: api/Activity
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<GetActivityDto>>> GetActivities()
+        public async Task<ActionResult<IEnumerable<GetActivityDto>>> GetActivities(
+            [FromQuery] string? ownerUsernameFilter = null,
+            [FromQuery] int? groupId = null
+            )
         {
             try
             {
-                var activities = await _activityService.GetAll();
+                var spec = new ActivityFilterSpecification(ownerUsernameFilter, groupId);
+                var activities = await _activityService.GetAllAsync(spec);
                 return Ok(activities);
             }
             catch (KeyNotFoundException ex)

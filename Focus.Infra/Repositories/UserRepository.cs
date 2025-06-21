@@ -1,10 +1,13 @@
+using Focus.Domain.Specifications;
+using Focus.Infra.Common;
 using Focus.Infra.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
 namespace Focus.Infra.Repositories;
 using Focus.Domain.Entities;
 
-public class UserRepository : IRepository<User>
+public class UserRepository : IUserRepository
 {
     private readonly FocusDbContext _context;
     public UserRepository(FocusDbContext context)
@@ -12,9 +15,9 @@ public class UserRepository : IRepository<User>
         _context = context;
     }
     
-    public async Task<IEnumerable<User>?> GetAllAsync()
+    public async Task<List<User>> ListAsync(ISpecification<User>? spec = null)
     {
-        return await _context.Users.ToListAsync();
+        return await ApplySpecification(spec).ToListAsync();
     }
     
     public async Task<User?> GetByIdAsync(int id)
@@ -41,4 +44,10 @@ public class UserRepository : IRepository<User>
         _context.Users.Remove(user);
         return await _context.SaveChangesAsync() > 0;
     }
+    
+    private IQueryable<User> ApplySpecification(ISpecification<User> spec)
+    {
+        return SpecificationEvaluator<User>.GetQuery(_context.Users.AsQueryable(), spec);
+    }
+
 }

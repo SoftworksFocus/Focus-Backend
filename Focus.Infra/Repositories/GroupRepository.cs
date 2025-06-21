@@ -1,10 +1,12 @@
+using Focus.Domain.Specifications;
+using Focus.Infra.Common;
 using Focus.Infra.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Focus.Infra.Repositories;
 using Focus.Domain.Entities;
 
-public class GroupRepository : IRepository<Group>
+public class GroupRepository : IGroupRepository
 {
     private readonly FocusDbContext _context;
 
@@ -19,10 +21,9 @@ public class GroupRepository : IRepository<Group>
         return group;
     }
 
-    public async Task<IEnumerable<Group>?> GetAllAsync()
+    public Task<List<Group>> ListAsync(ISpecification<Group>? spec)
     {
-        var groups = await _context.Groups.ToListAsync();
-        return groups;
+        return ApplySpecification(spec).ToListAsync();
     }
 
     public async Task<bool> AddAsync(Group group)
@@ -43,5 +44,10 @@ public class GroupRepository : IRepository<Group>
         }
         _context.Remove(group);
         return await _context.SaveChangesAsync() > 0;
+    }
+    
+    private IQueryable<Group> ApplySpecification(ISpecification<Group>? spec)
+    {
+        return SpecificationEvaluator<Group>.GetQuery(_context.Groups.AsQueryable(), spec);
     }
 }

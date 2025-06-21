@@ -1,29 +1,25 @@
 using Focus.Application.DTO.User;
 using Focus.Application.Services.Interfaces;
 using Focus.Domain.Entities;
+using Focus.Domain.Specifications;
 using Focus.Infra.Repositories;
+using Focus.Infra.Repositories.Interfaces;
 
 namespace Focus.Application.Services;
 
 public class UserService : IUserService
 {
-    private readonly UserRepository _userRepository;
+    private readonly IUserRepository _userRepository;
 
-    public UserService(UserRepository userRepository)
+    public UserService(IUserRepository userRepository)
     {
         _userRepository = userRepository;
     }
 
-    public async Task<IEnumerable<GetUserDto>?> GetAll()
+    public async Task<List<GetUserDto>?> GetAllAsync(ISpecification<User>? filterSpec = null)
     {
-        var users = await  _userRepository.GetAllAsync();
-        
-        if (users == null || !users.Any())
-        {
-            throw new KeyNotFoundException("No users found.");
-        }
+        var users = await _userRepository.ListAsync(filterSpec);
         var returnUsers = users.Select(GetUserDto.FromUser).ToList();
-        
         return returnUsers;
     }
     

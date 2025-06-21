@@ -1,29 +1,39 @@
 using Microsoft.AspNetCore.Mvc;
 using Focus.Application.Services;
 using Focus.Application.DTO.User;
+using Focus.Application.Services.Interfaces;
+using Focus.Application.Specifications;
+using Focus.Domain.Entities;
 
 
 namespace Focus.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    
+
     public class UserController : ControllerBase
     {
-        private readonly UserService _userService;
+        private readonly IUserService _userService;
+        private readonly IUserGroupService _userGroupService;
 
-        public UserController(UserService userService)
+        public UserController(IUserService userService, IUserGroupService userGroupService
+            )
         {
             _userService = userService;
+            _userGroupService = userGroupService;
         }
-        
+
         // GET: api/<User>
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetUsers(
+            [FromQuery] string? usernameFilter = null,
+            [FromQuery] string? emailFilter = null
+            )
         {
             try
             {
-                var returnUsers = await _userService.GetAll();
+                var spec = new UserFilterSpecification(usernameFilter, emailFilter);
+                var returnUsers = await _userService.GetAllAsync(spec);
                 return Ok(returnUsers);
             }
             catch (KeyNotFoundException ex)
@@ -104,6 +114,86 @@ namespace Focus.API.Controllers
             try
             {
                 await _userService.Delete(id);
+                return Ok();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        // GET api/<User>/groups/1
+        [HttpGet("groups/{userId:int}")]
+        public async Task<IActionResult> GetAllGroupsFromUser([FromRoute] int userId)
+        {
+            try
+            {
+                var returnUsersGroups = await _userGroupService.GetAllGroupsFromUser(userId);
+                return Ok(returnUsersGroups);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        // POST api/<User>/join//1/2
+        [HttpPost("join/{groupId:int}/{userId:int}")]
+        public async Task<IActionResult> JoinGroup([FromRoute] int groupId, [FromRoute] int userId)
+        {
+            try
+            {
+                await _userGroupService.AddUserToGroupAsync(userId, groupId);
+                return Ok();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        // PUT api/<User>/toggle-admin/1/2
+        [HttpPut("toggle-admin/{groupId:int}/{userId:int}")]
+        public async Task<IActionResult> ToggleAdminRole([FromRoute] int groupId, [FromRoute] int userId)
+        {
+            try
+            {
+                await _userGroupService.ToggleRoleAdmin(userId, groupId);
+                return Ok();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        // DELETE api/<User>/leave/{groupId:int}/{userId:int}
+        [HttpDelete("leave/{groupId:int}/{userId:int}")]
+        public async Task<IActionResult> LeaveGroup([FromRoute] int groupId, [FromRoute] int userId)
+        {
+            try
+            {
+                await _userGroupService.RemoveUserFromGroupAsync(userId, groupId);
                 return Ok();
             }
             catch (KeyNotFoundException ex)

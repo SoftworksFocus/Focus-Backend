@@ -1,5 +1,5 @@
 namespace Focus.Application.DTO.Group;
-
+using Domain.Entities;
 public class GetGroupDto : PlainGroupDto
 {
     public int Id { get; set; }
@@ -8,7 +8,7 @@ public class GetGroupDto : PlainGroupDto
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     
-    public static GetGroupDto FromGroup(Domain.Entities.Group group)
+    public static GetGroupDto FromGroup(Group group)
     {
         if (group == null)
         {
@@ -17,6 +17,7 @@ public class GetGroupDto : PlainGroupDto
 
         return new GetGroupDto
         {
+            Id = group.Id,
             Name = group.Name,
             Description = group.Description,
             CreatedAt = group.CreatedAt,
