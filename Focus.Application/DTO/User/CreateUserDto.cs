@@ -3,7 +3,7 @@ using Domain.Entities;
 
 public class CreateUserDto : PlainUserDto
 {
-    private string Password { get; set; } = null!;
+    public string Password { get; set; } = null!;
 
     public User ToUser() =>
         new User
@@ -11,8 +11,7 @@ public class CreateUserDto : PlainUserDto
             Username = Username,
             Email = Email,
             Description = Description,
-            // Password = Password,
-            Password = "TestPassword", // Todo: This should be handled securely 
+            Password = this.Password,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
         };

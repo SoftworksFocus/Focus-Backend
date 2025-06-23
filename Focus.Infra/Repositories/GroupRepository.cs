@@ -31,8 +31,20 @@ public class GroupRepository : IRepository<Group>
         return await _context.SaveChangesAsync() > 0;
     }
 
-    public async Task<bool> UpdateAsync() =>   
-        await _context.SaveChangesAsync() > 0;
+    public async Task UpdateAsync(int id, Group newGroup)
+    {
+        var groupToUpdate = await _context.Groups.FindAsync(id);
+        if (groupToUpdate == null)
+        {
+            throw new KeyNotFoundException($"Group with id {id} not found.");
+        }
+
+        groupToUpdate.Name = newGroup.Name;
+        groupToUpdate.Description = newGroup.Description;
+        groupToUpdate.UpdatedAt = newGroup.UpdatedAt;
+
+        await _context.SaveChangesAsync();
+    }
 
     public async Task<bool> DeleteAsync(int id)
     {

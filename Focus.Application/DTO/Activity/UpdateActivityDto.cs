@@ -15,4 +15,15 @@ public class UpdateActivityDto : PlainActivityDto
         updateActivity.Status = Status;
         updateActivity.UpdatedAt = UpdatedAt;
     }
+    
+    public Activity ToActivity() =>
+        new Activity
+        {
+            Title = Title,
+            Description = Description ?? string.Empty,
+            StartDate = Functions.ParseAndConvertToUtc(StartDate, nameof(StartDate)),
+            EndDate = Functions.ParseAndConvertToUtc(EndDate, nameof(EndDate)),
+            Status = Status,
+            UpdatedAt = UpdatedAt
+        };
 }

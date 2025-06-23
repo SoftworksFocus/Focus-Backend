@@ -26,6 +26,11 @@ public class UserRepository : IRepository<User>
     {
         return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
     }
+    
+    public async Task<User?> GetUserByRefreshTokenAsync(string token)
+    {
+        return await _context.Users.FirstOrDefaultAsync(u => u.RefreshToken == token);
+    }
 
     public async Task<bool> AddAsync(User entity)
     {
@@ -33,8 +38,26 @@ public class UserRepository : IRepository<User>
         return await _context.SaveChangesAsync() > 0;
     }
 
-    public async Task<bool> UpdateAsync() =>   
-         await _context.SaveChangesAsync() > 0;
+    public async Task UpdateAsync(int id, User updatedUser)
+    {
+        var existingUser = await _context.Users.FindAsync(id);
+
+        if (existingUser != null)
+        {
+            existingUser.Username = updatedUser.Username;
+            existingUser.Email = updatedUser.Email;
+            existingUser.Description = updatedUser.Description;
+            existingUser.RefreshToken = updatedUser.RefreshToken;
+            existingUser.RefreshTokenExpiryTime = updatedUser.RefreshTokenExpiryTime;
+            existingUser.UpdatedAt = DateTime.UtcNow;
+        
+            await _context.SaveChangesAsync();
+        }
+        else
+        {
+            throw new KeyNotFoundException($"Usuário com o id {id} não foi encontrado para atualização.");
+        }
+    }
     
     public async Task<bool> DeleteAsync(int id)
     {

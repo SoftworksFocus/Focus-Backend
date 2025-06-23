@@ -52,22 +52,24 @@ public class ActivityService : IActivityService
         }
     }
 
-    public async Task Update(int id, UpdateActivityDto newActivityDto) 
+    public async Task Update(int id, UpdateActivityDto newActivityDto)
     {
-        var updateActivity = await _activityRepository.GetByIdAsync(id);
-        if (newActivityDto == null)
-        {
-            throw new ArgumentNullException(nameof(newActivityDto), "Activity cannot be null.");
-        }
-        if (updateActivity == null)
+        var activityToUpdate = await _activityRepository.GetByIdAsync(id);
+    
+        if (activityToUpdate == null)
         {
             throw new KeyNotFoundException($"Activity with ID {id} not found.");
         }
-        newActivityDto.MapTo(updateActivity);
-        if (!await _activityRepository.UpdateAsync())
-        {
-            throw new Exception($"Failed to update activity with id {id}.");
-        }
+    
+        var newActivity = newActivityDto.ToActivity();
+    
+        activityToUpdate.Title = newActivity.Title;
+        activityToUpdate.Description = newActivity.Description;
+        activityToUpdate.StartDate = newActivity.StartDate;
+        activityToUpdate.EndDate = newActivity.EndDate;
+        activityToUpdate.Status = newActivity.Status;
+    
+        await _activityRepository.UpdateAsync(id, activityToUpdate);
     }
 
     public async Task Delete(int id)

@@ -35,8 +35,24 @@ public class ActivityRepository : IRepository<Activity>
         return await _context.SaveChangesAsync() > 0;
     }
 
-    public async Task<bool> UpdateAsync() =>   
-        await _context.SaveChangesAsync() > 0;
+    public async Task UpdateAsync(int id, Activity newActivity)
+    {
+        var activityToUpdate = await _context.Activities.FindAsync(id);
+    
+        if (activityToUpdate == null)
+        {
+            throw new KeyNotFoundException($"Activity with id {id} not found.");
+        }
+    
+        activityToUpdate.Title = newActivity.Title;
+        activityToUpdate.Description = newActivity.Description;
+        activityToUpdate.StartDate = newActivity.StartDate;
+        activityToUpdate.EndDate = newActivity.EndDate;
+        activityToUpdate.Status = newActivity.Status;
+        activityToUpdate.UpdatedAt = newActivity.UpdatedAt;
+
+        await _context.SaveChangesAsync();
+    }
 
     public async Task<bool> DeleteAsync(int id)
     {
