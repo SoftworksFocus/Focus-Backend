@@ -1,12 +1,6 @@
 using Focus.Application.DTO.Group;
+using Focus.Domain.Entities;
 
 namespace Focus.Application.Services.Interfaces;
 
-public interface IGroupService
-{
-    Task<GetGroupDto?> GetById(int id);
-    Task<IEnumerable<GetGroupDto>?> GetAll();
-    Task Add(CreateGroupDto createGroupDto);
-    Task Update(int id, UpdateGroupDto newGroupDto);
-    Task Delete(int id);
-}
+public interface IGroupService : IService<Group, GetGroupDto, CreateGroupDto, UpdateGroupDto>;

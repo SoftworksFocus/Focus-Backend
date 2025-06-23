@@ -1,27 +1,32 @@
+using Focus.Application.DTO.Group;
 using Focus.Domain.Entities;
-using Focus.Infra.Repositories;
+using Focus.Application.DTO.User;
+using Focus.Application.Services.Interfaces;
+using Focus.Infra.Repositories.Interfaces;
 
 namespace Focus.Application.Services;
 
-public class UserGroupService
+public class UserGroupService : IUserGroupService
 {
-     private readonly UserGroupRepository _userGroupRepository;
+     private readonly IUserGroupRepository _userGroupRepository;
     
-     public UserGroupService(UserGroupRepository userGroupRepository)
+     public UserGroupService(IUserGroupRepository userGroupRepository)
      {
          _userGroupRepository = userGroupRepository;
      }
      
-     public async Task<IEnumerable<UserGroup>?> GetAll() 
+     public async Task<IEnumerable<SummaryUserDto>?> GetAllMembersFromGroup(int groupId) 
      {
-         var usersGroups = await _userGroupRepository.GetAllAsync();
-         
-         if (usersGroups == null || !usersGroups.Any())
-         {
-             throw new KeyNotFoundException("No usersGroups found");
-         }
-         
-         return usersGroups;
+         var groupMembers = await _userGroupRepository.GetAllMembersAsync(groupId);
+         var returnUsersGroups = groupMembers.Select(SummaryUserDto.FromUser).ToList();
+         return returnUsersGroups;
+     }
+     
+     public async Task<IEnumerable<SummaryGroupDto>?> GetAllGroupsFromUser(int userId) // Todo: change the logic of the others gets 
+     {
+         var userGroups = await _userGroupRepository.GetAllGroups(userId);
+         var returnUsersGroups = userGroups.Select(SummaryGroupDto.FromGroup).ToList();
+         return returnUsersGroups;
      }
      
      public async Task<UserGroup?> GetById(int userId, int groupId)
@@ -35,34 +40,35 @@ public class UserGroupService
          return activity;
      }
     
-     public async Task Add(UserGroup activity)
+     public async Task AddUserToGroupAsync(int userId, int groupId, bool isAdmin = false)
      {
-         if (activity == null)
-         {
-             throw new ArgumentNullException(nameof(activity), "UserGroup cannot be null.");
-         }
-         
-         await _userGroupRepository.AddAsync(activity);
+        var memberInGroup = await _userGroupRepository.GetByIdAsync(userId, groupId);
+        if (memberInGroup != null)
+        {
+            throw new ArgumentException($"User is already a member of group ."); // Todo: remove the id references in the messages
+        }
+        var relationship = new UserGroup
+        {
+            UserId = userId,
+            GroupId = groupId,
+            IsAdmin = isAdmin
+        };
+        await _userGroupRepository.MakeRelationship(relationship);
      }
     
-     public async Task Update(int userId, int groupId, UserGroup activity)
+     public async Task ToggleRoleAdmin(int userId, int groupId)
      {
-         
          var existingUserGroup = await _userGroupRepository.GetByIdAsync(userId, groupId);
          
          if (existingUserGroup == null)
          {
-             throw new ArgumentNullException(nameof(existingUserGroup), "UserGroup cannot be null.");
+             throw new ArgumentNullException(nameof(existingUserGroup), "User is not in this group.");
          }
-         
-         if (existingUserGroup == null)
-         {
-             throw new KeyNotFoundException($"UserGroup not found.");
-         }
-         await _userGroupRepository.UpdateAsync(userId, groupId, activity);
+         existingUserGroup.IsAdmin = !existingUserGroup.IsAdmin;
+         await _userGroupRepository.UpdateAsync();
      }
     
-     public async Task Delete(int userId, int groupId)
+     public async Task RemoveUserFromGroupAsync(int userId, int groupId)
      {
          await _userGroupRepository.DeleteAsync(userId, groupId);
      }

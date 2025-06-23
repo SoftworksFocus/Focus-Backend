@@ -2,27 +2,26 @@ using Focus.Application.Services;
 using Focus.Infra;
 using Microsoft.EntityFrameworkCore;
 using Focus.Application.Services.Interfaces;
-using Focus.Domain.Entities;
 using Focus.Infra.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using Focus.Infra.Repositories.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
-
-builder.Services.AddScoped<UserRepository>();
-builder.Services.AddScoped<ActivityRepository>();
-builder.Services.AddScoped<GroupRepository>();
-builder.Services.AddScoped<UserGroupRepository>();
-
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IActivityService, ActivityService>();
-builder.Services.AddScoped<GroupService>();
-builder.Services.AddScoped<UserGroupService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
+builder.Services.AddScoped<IGroupRepository, GroupRepository>();
+builder.Services.AddScoped<IUserGroupRepository, UserGroupRepository>();
+builder.Services.AddScoped<IUserGroupService, UserGroupService>();
+builder.Services.AddScoped<IActivityService, ActivityService>();
+builder.Services.AddScoped<IGroupService, GroupService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IFeedService, FeedService>();
 
 builder.Services.AddDbContext<FocusDbContext>(
     options => options.UseNpgsql(builder.Configuration.GetConnectionString("DbConnection")));

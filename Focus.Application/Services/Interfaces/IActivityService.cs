@@ -1,12 +1,7 @@
 using Focus.Application.DTO.Activity;
+using Focus.Domain.Entities;
+using Focus.Domain.Specifications;
 
 namespace Focus.Application.Services.Interfaces;
 
-public interface IActivityService
-{
-    Task<GetActivityDto?> GetById(int id);
-    Task<IEnumerable<GetActivityDto>?> GetAll();
-    Task Add(CreateActivityDto createUserDto);
-    Task Update(int id, UpdateActivityDto newUserDto);
-    Task Delete(int id);
-}
+public interface IActivityService : IService<Activity, GetActivityDto, CreateActivityDto, UpdateActivityDto>;

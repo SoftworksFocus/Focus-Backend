@@ -1,10 +1,12 @@
+using Focus.Domain.Specifications;
+using Focus.Infra.Common;
 using Focus.Infra.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Focus.Infra.Repositories;
 using Focus.Domain.Entities;
 
-public class ActivityRepository : IRepository<Activity>
+public class ActivityRepository : IActivityRepository
 {
     private readonly FocusDbContext _context;
 
@@ -21,14 +23,11 @@ public class ActivityRepository : IRepository<Activity>
         return activity;
     }
 
-    public async Task<IEnumerable<Activity>?> GetAllAsync()
+    public Task<List<Activity>> ListAsync(ISpecification<Activity>? spec)
     {
-        var  activities = await _context.Activities
-            .Include(u => u.User)
-            .ToListAsync();
-        return activities;
+        return ApplySpecification(spec).ToListAsync();
     }
-    
+
     public async Task<bool> AddAsync(Activity activity)
     {
         await _context.Activities.AddAsync(activity);
@@ -63,5 +62,10 @@ public class ActivityRepository : IRepository<Activity>
         }
         _context.Remove(activityToDelete);
         return await _context.SaveChangesAsync() > 0;
+    }
+    
+    private IQueryable<Activity> ApplySpecification(ISpecification<Activity>? spec)
+    {
+        return SpecificationEvaluator<Activity>.GetQuery(_context.Activities.AsQueryable(), spec);
     }
 }
