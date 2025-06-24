@@ -47,7 +47,6 @@ public class UserService : IUserService
             throw new Exception("Failed to add user.");
         }
     }
-
     public async Task Update(int id, UpdateUserDto newUserDto)
     {
         if (newUserDto == null)

@@ -34,6 +34,20 @@ namespace Focus.Application.Services
             return GenerateJwtToken(user);
         }
         
+        public async Task LogoutAsync(int userId)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null)
+            {
+                return;
+            }
+            
+            user.RefreshToken = null;
+            user.RefreshTokenExpiryTime = DateTime.UtcNow;
+
+            await _userRepository.UpdateAsync(user.Id, user);
+        }
+        
         public string GenerateJwtToken(User user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
