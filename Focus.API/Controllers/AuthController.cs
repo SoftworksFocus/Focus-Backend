@@ -1,5 +1,7 @@
+using System.Security.Claims;
 using Focus.Application.DTO.User;
 using Focus.Application.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Focus.API.Controllers;
@@ -31,5 +33,21 @@ public class AuthController : ControllerBase
         {
             return StatusCode(500, "Ocorreu um erro inesperado. Tente novamente mais tarde.");
         }
+    }
+    
+    [HttpPost("logout")]
+    [Authorize]
+    public async Task<IActionResult> Logout()
+    {
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out var userId))
+        {
+            return Unauthorized();
+        }
+
+        await _authService.LogoutAsync(userId);
+        Response.Cookies.Delete("refreshToken");
+
+        return Ok(new { message = "Logout bem-sucedido." });
     }
 }
