@@ -29,11 +29,6 @@ public class UserRepository : IUserRepository
     {
         return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
     }
-    
-    public async Task<User?> GetUserByRefreshTokenAsync(string token)
-    {
-        return await _context.Users.FirstOrDefaultAsync(u => u.RefreshToken == token);
-    }
 
     public async Task<bool> AddAsync(User entity)
     {
@@ -50,8 +45,6 @@ public class UserRepository : IUserRepository
             existingUser.Username = updatedUser.Username;
             existingUser.Email = updatedUser.Email;
             existingUser.Description = updatedUser.Description;
-            existingUser.RefreshToken = updatedUser.RefreshToken;
-            existingUser.RefreshTokenExpiryTime = updatedUser.RefreshTokenExpiryTime;
             existingUser.UpdatedAt = DateTime.UtcNow;
         
             await _context.SaveChangesAsync();
@@ -76,6 +69,13 @@ public class UserRepository : IUserRepository
     private IQueryable<User> ApplySpecification(ISpecification<User> spec)
     {
         return SpecificationEvaluator<User>.GetQuery(_context.Users.AsQueryable(), spec);
+    }
+
+    public async Task<User> GetByCredentialsMock(string email, string password)
+    {
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email && u.Password == password);
+
+        return user!;
     }
 
 }

@@ -13,6 +13,7 @@ namespace Focus.Infra
         public DbSet<Activity> Activities { get; set; }
         public DbSet<Group> Groups { get; set; }
         public DbSet<UserGroup> UserGroups { get; set; }
+        public DbSet<UserToken> UserTokens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {  
@@ -103,6 +104,15 @@ namespace Focus.Infra
                 .HasForeignKey(ug => ug.GroupId);
             #endregion
             
+            #region UserToken
+            modelBuilder.Entity<UserToken>().ToTable("UserTokens");
+            modelBuilder.Entity<UserToken>().HasKey(ut => ut.UserId);
+
+            modelBuilder.Entity<UserToken>()
+                .HasOne(ut => ut.User)
+                .WithMany(u => u.UserTokens)
+                .HasForeignKey(ut => ut.UserId);
+            #endregion
             modelBuilder.Entity<User>().HasData(
                 new User
                 {
