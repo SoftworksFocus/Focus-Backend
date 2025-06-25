@@ -30,15 +30,13 @@ namespace Focus.Application.Services
 
         public async Task<AuthResultDto> AuthenticateAsync(LoginUserDto loginUserDto)
         {
-            var spec = new UserByEmailSpecification(loginUserDto.Email);
+            var spec = new UserByEmailSpecification(loginUserDto.Email); //Todo: a spec for searching email | password
             var user = await _userRepository.GetFirstOrDefaultAsync(spec);
 
             if (user == null || !BCrypt.Net.BCrypt.Verify(loginUserDto.Password, user.Password))
             {
-                throw new UnauthorizedAccessException("Credenciais inválidas");
+                throw new UnauthorizedAccessException("Invalid credentials!");
             }
-            
-            
             
             var accessToken = GenerateJwtToken(user);
             var refreshToken = await CreateAndSaveRefreshTokenAsync(user);
@@ -90,6 +88,8 @@ namespace Focus.Application.Services
                 userToken.IsRevoked = true;
                 await _userTokenRepository.UpdateAsync(userToken);
             }
+            
+            //Todo: verify if the logic "revoked" is ok.
         }
         
         private string GenerateJwtToken(User user)
@@ -97,15 +97,14 @@ namespace Focus.Application.Services
             var jwtKey = _configuration["Jwt:Key"];
             if (string.IsNullOrEmpty(jwtKey))
             {
-                throw new InvalidOperationException("A configuração 'Jwt:Key' não foi encontrada. Verifique seus arquivos de configuração (appsettings.json, secrets.json).");
+                throw new InvalidOperationException("A configuração 'Jwt:Key' não foi encontrada. Verifique seus arquivos de configuração (appsettings.json, secrets.json)."); //Todo: translate
             }
 
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(jwtKey);
-
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new[]
+                Subject = new ClaimsIdentity(new[] //Todo: collection expression
                 {
                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                     new Claim(ClaimTypes.Name, user.Username),
@@ -113,7 +112,7 @@ namespace Focus.Application.Services
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 }),
                 
-                Expires = DateTime.UtcNow.AddMinutes(15),
+                Expires = DateTime.UtcNow.AddMinutes(15), //Todo: discuss to expiration time
                 Issuer = _configuration["Jwt:Issuer"],
                 Audience = _configuration["Jwt:Audience"],
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)

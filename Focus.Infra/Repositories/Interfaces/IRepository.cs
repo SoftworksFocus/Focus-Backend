@@ -10,6 +10,4 @@ public interface IRepository <T> where T : class
     Task UpdateAsync(int id,  T entity);
     Task<bool> DeleteAsync(int id);
     Task<T?> GetFirstOrDefaultAsync(ISpecification<T> spec);
-
-    
 }

@@ -38,12 +38,13 @@ public class AuthController : ControllerBase
         }
 
         [HttpPost("refresh-token")]
+        [Authorize]
         public async Task<IActionResult> RefreshToken()
         {
             var oldRefreshToken = Request.Cookies["refreshToken"];
             if (string.IsNullOrEmpty(oldRefreshToken))
             {
-                return Unauthorized(new { message = "Refresh token não encontrado." });
+                return Unauthorized(new { message = "Refresh token not found." });
             }
 
             try
@@ -67,9 +68,9 @@ public class AuthController : ControllerBase
             {
                 await _authService.LogoutAsync(refreshToken);
             }
-            
+            //Todo: error handle if refreshtoken is null
             Response.Cookies.Delete("refreshToken");
-            return Ok(new { message = "Logout bem-sucedido." });
+            return Ok(new { message = "Logout successful." });
         }
 
         private void SetRefreshTokenInCookie(string refreshToken)
@@ -78,7 +79,7 @@ public class AuthController : ControllerBase
             {
                 HttpOnly = true,
                 Expires = DateTime.UtcNow.AddDays(7),
-                Secure = true, //verify modifications on production
+                Secure = true, //Todo: verify modifications on production
                 SameSite = SameSiteMode.Strict
             };
             Response.Cookies.Append("refreshToken", refreshToken, cookieOptions);
