@@ -57,7 +57,12 @@ public class GroupRepository : IGroupRepository
         _context.Remove(group);
         return await _context.SaveChangesAsync() > 0;
     }
-    
+
+    public Task<Group?> GetFirstOrDefaultAsync(ISpecification<Group> spec)
+    {
+        throw new NotImplementedException();
+    }
+
     private IQueryable<Group> ApplySpecification(ISpecification<Group>? spec)
     {
         return SpecificationEvaluator<Group>.GetQuery(_context.Groups.AsQueryable(), spec);

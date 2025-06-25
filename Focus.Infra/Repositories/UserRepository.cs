@@ -65,7 +65,12 @@ public class UserRepository : IUserRepository
         _context.Users.Remove(user);
         return await _context.SaveChangesAsync() > 0;
     }
-    
+
+    public async Task<User?> GetFirstOrDefaultAsync(ISpecification<User> spec)
+    {
+        return await ApplySpecification(spec).FirstOrDefaultAsync();
+    }
+
     private IQueryable<User> ApplySpecification(ISpecification<User> spec)
     {
         return SpecificationEvaluator<User>.GetQuery(_context.Users.AsQueryable(), spec);

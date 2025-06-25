@@ -32,7 +32,7 @@ namespace Focus.Infra
                 .HasMaxLength(50);
             modelBuilder.Entity<User>().Property( u => u.Password)
                 .IsRequired()
-                .HasMaxLength(50);
+                .HasMaxLength(100);
             modelBuilder.Entity<User>().Property( u => u.Description)
                 .HasMaxLength(250);
             
@@ -106,13 +106,17 @@ namespace Focus.Infra
             
             #region UserToken
             modelBuilder.Entity<UserToken>().ToTable("UserTokens");
-            modelBuilder.Entity<UserToken>().HasKey(ut => ut.UserId);
+
+            modelBuilder.Entity<UserToken>().HasKey(ut => ut.Id); 
+
+            modelBuilder.Entity<UserToken>().Property(ut => ut.Id).ValueGeneratedOnAdd();
 
             modelBuilder.Entity<UserToken>()
                 .HasOne(ut => ut.User)
                 .WithMany(u => u.UserTokens)
                 .HasForeignKey(ut => ut.UserId);
             #endregion
+            
             modelBuilder.Entity<User>().HasData(
                 new User
                 {

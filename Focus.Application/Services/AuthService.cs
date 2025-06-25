@@ -1,7 +1,8 @@
+using Focus.Application.DTO.Auth;
 using Focus.Application.DTO.User;
 using Focus.Application.Services.Interfaces;
 using Focus.Domain.Entities;
-using Focus.Infra.Repositories;
+using Focus.Infra.Repositories.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -10,35 +11,34 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using Focus.Application.DTO.Auth;
 using Focus.Application.Specifications;
-using Focus.Infra.Repositories.Interfaces;
 
 namespace Focus.Application.Services
 {
     public class AuthService : IAuthService
     {
         private readonly IUserRepository _userRepository;
-        private readonly IConfiguration _configuration;
         private readonly IUserTokenRepository _userTokenRepository;
+        private readonly IConfiguration _configuration;
 
-        public AuthService(IUserRepository userRepository, IConfiguration configuration, IUserTokenRepository userTokenRepository)
+        public AuthService(IUserRepository userRepository, IUserTokenRepository userTokenRepository, IConfiguration configuration)
         {
             _userRepository = userRepository;
-            _configuration = configuration;
             _userTokenRepository = userTokenRepository;
+            _configuration = configuration;
         }
 
         public async Task<AuthResultDto> AuthenticateAsync(LoginUserDto loginUserDto)
         {
             var spec = new UserByEmailSpecification(loginUserDto.Email);
-            var users = await _userRepository.ListAsync(spec);
-            var user = users.FirstOrDefault();
+            var user = await _userRepository.GetFirstOrDefaultAsync(spec);
 
-            if (user == null /* || !BCrypt.Net.BCrypt.Verify(loginUserDto.Password, user.Password) */)
+            if (user == null || !BCrypt.Net.BCrypt.Verify(loginUserDto.Password, user.Password))
             {
                 throw new UnauthorizedAccessException("Credenciais inválidas");
             }
+            
+            
             
             var accessToken = GenerateJwtToken(user);
             var refreshToken = await CreateAndSaveRefreshTokenAsync(user);
@@ -94,8 +94,14 @@ namespace Focus.Application.Services
         
         private string GenerateJwtToken(User user)
         {
+            var jwtKey = _configuration["Jwt:Key"];
+            if (string.IsNullOrEmpty(jwtKey))
+            {
+                throw new InvalidOperationException("A configuração 'Jwt:Key' não foi encontrada. Verifique seus arquivos de configuração (appsettings.json, secrets.json).");
+            }
+
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
+            var key = Encoding.ASCII.GetBytes(jwtKey);
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
@@ -127,7 +133,9 @@ namespace Focus.Application.Services
                 UserId = user.Id,
                 RefreshTokenHash = refreshTokenHash,
                 ExpiresAt = DateTime.UtcNow.AddDays(7),
-                IsRevoked = false
+                IsRevoked = false,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
             };
             
             await _userTokenRepository.AddAsync(userToken);
@@ -135,4 +143,4 @@ namespace Focus.Application.Services
             return refreshToken;
         }
     }
-    }
+}

@@ -63,7 +63,12 @@ public class ActivityRepository : IActivityRepository
         _context.Remove(activityToDelete);
         return await _context.SaveChangesAsync() > 0;
     }
-    
+
+    public Task<Activity?> GetFirstOrDefaultAsync(ISpecification<Activity> spec)
+    {
+        throw new NotImplementedException();
+    }
+
     private IQueryable<Activity> ApplySpecification(ISpecification<Activity>? spec)
     {
         return SpecificationEvaluator<Activity>.GetQuery(_context.Activities.AsQueryable(), spec);

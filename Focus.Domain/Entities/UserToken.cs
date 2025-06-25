@@ -1,6 +1,6 @@
 namespace Focus.Domain.Entities;
 
-public class UserToken
+public class UserToken : BaseEntity
 {
     public int UserId { get; set; }
     public User User { get; set; } = null!;
