@@ -18,10 +18,10 @@ namespace Focus.API.Controllers
     {
         private readonly IUserService _userService;
         private readonly UserRepository _userRepository;
-        private readonly TokenService _tokenService;
         private readonly IUserGroupService _userGroupService;
+        private readonly ITokenService _tokenService;
 
-        public UserController(IUserService userService, IUserGroupService userGroupService, TokenService tokenService)
+        public UserController(IUserService userService, IUserGroupService userGroupService, ITokenService tokenService)
 
         {
             _userService = userService;
@@ -89,59 +89,6 @@ namespace Focus.API.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-
-[HttpPost("refresh-token")]
-public async Task<IActionResult> RefreshToken()
-{
-    var refreshToken = Request.Cookies["refreshToken"];
-
-    if (string.IsNullOrEmpty(refreshToken))
-    {
-        return Unauthorized(new { message = "Refresh token não encontrado." });
-    }
-
-
-    var user = await _userRepository.GetUserByRefreshTokenAsync(refreshToken);
-
-
-    if (user == null)
-    {
-        return Unauthorized(new { message = "Refresh token inválido." });
-    }
-
-    if (user.RefreshTokenExpiryTime <= DateTime.UtcNow)
-    {
-        return Unauthorized(new { message = "Refresh token expirado. Por favor, faça login novamente." });
-    }
-
-
-    var claims = new List<Claim>
-    {
-        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-        new Claim(ClaimTypes.Email, user.Email)
-    };
-    var newAccessToken = _tokenService.GenerateAccessToken(claims);
-
-
-    var newRefreshToken = _tokenService.GenerateRefreshToken();
-    user.RefreshToken = newRefreshToken;
-    user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
-
-    await _userRepository.UpdateAsync(user.Id, user);
-
-
-    var cookieOptions = new CookieOptions
-    {
-        HttpOnly = true,
-        Expires = user.RefreshTokenExpiryTime,
-        Secure = true,
-        SameSite = SameSiteMode.Strict
-    };
-    Response.Cookies.Append("refreshToken", newRefreshToken, cookieOptions);
-
-
-    return Ok(new { accessToken = newAccessToken });
-}
 
         // PUT api/<User>/5
         [HttpPut("{id:int}")]

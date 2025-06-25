@@ -21,8 +21,10 @@ builder.Services.AddScoped<IUserGroupService, UserGroupService>();
 builder.Services.AddScoped<IActivityService, ActivityService>();
 builder.Services.AddScoped<IGroupService, GroupService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IFeedService, FeedService>();
-
+builder.Services.AddScoped<ITokenService , TokenService>();
+builder.Services.AddScoped<IUserTokenRepository, UserTokenRepository>();
 builder.Services.AddDbContext<FocusDbContext>(
     options => options.UseNpgsql(builder.Configuration.GetConnectionString("DbConnection")));
 
