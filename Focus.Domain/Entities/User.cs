@@ -9,5 +9,6 @@
         public IEnumerable<Group>? OwnedGroups { get; set; }
         public List<UserGroup>? Groups { get; set; } 
         public List<Activity>? Activities { get; set; }
+        public List<UserToken>? UserTokens { get; set; }
     }
 }

@@ -13,6 +13,7 @@ namespace Focus.Infra
         public DbSet<Activity> Activities { get; set; }
         public DbSet<Group> Groups { get; set; }
         public DbSet<UserGroup> UserGroups { get; set; }
+        public DbSet<UserToken> UserTokens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {  
@@ -31,7 +32,7 @@ namespace Focus.Infra
                 .HasMaxLength(50);
             modelBuilder.Entity<User>().Property( u => u.Password)
                 .IsRequired()
-                .HasMaxLength(50);
+                .HasMaxLength(100);
             modelBuilder.Entity<User>().Property( u => u.Description)
                 .HasMaxLength(250);
             
@@ -101,6 +102,19 @@ namespace Focus.Infra
                 .HasOne(ug => ug.Group)
                 .WithMany(g => g.Members)
                 .HasForeignKey(ug => ug.GroupId);
+            #endregion
+            
+            #region UserToken
+            modelBuilder.Entity<UserToken>().ToTable("UserTokens");
+
+            modelBuilder.Entity<UserToken>().HasKey(ut => ut.Id); 
+
+            modelBuilder.Entity<UserToken>().Property(ut => ut.Id).ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<UserToken>()
+                .HasOne(ut => ut.User)
+                .WithMany(u => u.UserTokens)
+                .HasForeignKey(ut => ut.UserId);
             #endregion
             
             modelBuilder.Entity<User>().HasData(

@@ -25,14 +25,35 @@ public class UserRepository : IUserRepository
         return await _context.Users.FindAsync(id);
     }
 
+    public async Task<User?> GetByEmailAsync(string email)
+    {
+        return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+    }
+
     public async Task<bool> AddAsync(User entity)
     {
         await _context.Users.AddAsync(entity);
         return await _context.SaveChangesAsync() > 0;
     }
 
-    public async Task<bool> UpdateAsync() =>   
-         await _context.SaveChangesAsync() > 0;
+    public async Task UpdateAsync(int id, User updatedUser)
+    {
+        var existingUser = await _context.Users.FindAsync(id);
+
+        if (existingUser != null)
+        {
+            existingUser.Username = updatedUser.Username;
+            existingUser.Email = updatedUser.Email;
+            existingUser.Description = updatedUser.Description;
+            existingUser.UpdatedAt = DateTime.UtcNow;
+        
+            await _context.SaveChangesAsync();
+        }
+        else
+        {
+            throw new KeyNotFoundException($"Usuário com o id {id} não foi encontrado para atualização.");
+        }
+    }
     
     public async Task<bool> DeleteAsync(int id)
     {
@@ -44,10 +65,22 @@ public class UserRepository : IUserRepository
         _context.Users.Remove(user);
         return await _context.SaveChangesAsync() > 0;
     }
-    
+
+    public async Task<User?> GetFirstOrDefaultAsync(ISpecification<User> spec)
+    {
+        return await ApplySpecification(spec).FirstOrDefaultAsync();
+    }
+
     private IQueryable<User> ApplySpecification(ISpecification<User> spec)
     {
         return SpecificationEvaluator<User>.GetQuery(_context.Users.AsQueryable(), spec);
+    }
+
+    public async Task<User> GetByCredentialsMock(string email, string password)
+    {
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email && u.Password == password);
+
+        return user!;
     }
 
 }
