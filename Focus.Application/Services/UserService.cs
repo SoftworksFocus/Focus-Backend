@@ -1,8 +1,8 @@
+using System.Security.Cryptography;
 using Focus.Application.DTO.User;
 using Focus.Application.Services.Interfaces;
 using Focus.Domain.Entities;
 using Focus.Domain.Specifications;
-using Focus.Infra.Repositories;
 using Focus.Infra.Repositories.Interfaces;
 
 namespace Focus.Application.Services;
@@ -10,10 +10,12 @@ namespace Focus.Application.Services;
 public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
+    private readonly IEmailService _emailService;
 
-    public UserService(IUserRepository userRepository)
+    public UserService(IUserRepository userRepository, IEmailService emailService)
     {
         _userRepository = userRepository;
+        _emailService = emailService;
     }
 
     public async Task<List<GetUserDto>?> GetAllAsync(ISpecification<User>? filterSpec = null)
@@ -42,11 +44,21 @@ public class UserService : IUserService
         }
         var user = userDto.ToUser();
         user.Password = BCrypt.Net.BCrypt.HashPassword(userDto.Password);
+        user.IsEmailVerified = false;
+        user.EmailVerificationToken = Convert.ToHexString(RandomNumberGenerator.GetBytes(64));
+        user.EmailVerificationTokenExpiresAt = DateTime.UtcNow.AddHours(24);
+
         if (!await _userRepository.AddAsync(user))
         {
             throw new Exception("Failed to add user.");
         }
+
+        if(user.EmailVerificationToken != null)
+        {
+            await _emailService.SendVerificationEmail(user.Email, user.EmailVerificationToken);
+        }
     }
+    
     public async Task Update(int id, UpdateUserDto newUserDto)
     {
         if (newUserDto == null)
@@ -74,5 +86,4 @@ public class UserService : IUserService
             throw new Exception($"Failed to delete user with id {id}.");
         }
     }
-    
 }

@@ -6,6 +6,9 @@
         public string Email { get; set; } = null!;
         public string Password { get; set; } = null!;
         public string? Description { get; set; }
+        public bool IsEmailVerified { get; set; }
+        public string? EmailVerificationToken { get; set; } 
+        public DateTime? EmailVerificationTokenExpiresAt { get; set; }
         public IEnumerable<Group>? OwnedGroups { get; set; }
         public List<UserGroup>? Groups { get; set; } 
         public List<Activity>? Activities { get; set; }
