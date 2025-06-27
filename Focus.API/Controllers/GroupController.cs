@@ -4,6 +4,7 @@ using Focus.Application.Services;
 using Focus.Application.Services.Interfaces;
 using Focus.Application.Specifications;
 using Focus.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Focus.API.Controllers
@@ -65,6 +66,7 @@ namespace Focus.API.Controllers
 
         // POST api/<GroupController>
         [HttpPost]
+        [Authorize]
         public async Task<ActionResult> Post([FromBody] CreateGroupDto group)
         {
             await _groupService.Add(group);
@@ -73,6 +75,7 @@ namespace Focus.API.Controllers
 
         // PUT api/<GroupController>/5
         [HttpPut("{id:int}")]
+        [Authorize]
         public async Task<ActionResult> Put(int id, [FromBody] UpdateGroupDto group)
         {
             try
@@ -96,6 +99,7 @@ namespace Focus.API.Controllers
 
         // DELETE api/<GroupController>/5
         [HttpDelete("{id:int}")]
+        [Authorize]
         public async Task<ActionResult> Delete(int id)
         {
             try
@@ -119,6 +123,7 @@ namespace Focus.API.Controllers
 
         // GET api/<GroupController>/5/members
         [HttpGet("{id:int}/members")]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<SummaryUserDto>>> GetMembers(int id)
         {
             try

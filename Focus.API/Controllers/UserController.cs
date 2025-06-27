@@ -31,6 +31,7 @@ namespace Focus.API.Controllers
 
         // GET: api/<User>
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetUsers(
             [FromQuery] string? usernameFilter = null,
             [FromQuery] string? emailFilter = null
@@ -73,6 +74,7 @@ namespace Focus.API.Controllers
 
         // POST api/<User>
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Add([FromBody] CreateUserDto userDto)
         {
             try
@@ -92,6 +94,7 @@ namespace Focus.API.Controllers
 
         // PUT api/<User>/5
         [HttpPut("{id:int}")]
+        [Authorize]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateUserDto userDto)
         {
             try
@@ -115,6 +118,7 @@ namespace Focus.API.Controllers
 
         // DELETE api/<User>/5
         [HttpDelete("{id:int}")]
+        [Authorize]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
             try
@@ -134,6 +138,7 @@ namespace Focus.API.Controllers
 
         // GET api/<User>/groups/1
         [HttpGet("groups/{userId:int}")]
+        [Authorize]
         public async Task<IActionResult> GetAllGroupsFromUser([FromRoute] int userId)
         {
             try
@@ -153,6 +158,7 @@ namespace Focus.API.Controllers
 
         // POST api/<User>/join//1/2
         [HttpPost("join/{groupId:int}/{userId:int}")]
+        [Authorize]
         public async Task<IActionResult> JoinGroup([FromRoute] int groupId, [FromRoute] int userId)
         {
             try
@@ -176,6 +182,7 @@ namespace Focus.API.Controllers
 
         // PUT api/<User>/toggle-admin/1/2
         [HttpPut("toggle-admin/{groupId:int}/{userId:int}")]
+        [Authorize]
         public async Task<IActionResult> ToggleAdminRole([FromRoute] int groupId, [FromRoute] int userId)
         {
             try
@@ -195,6 +202,7 @@ namespace Focus.API.Controllers
 
         // DELETE api/<User>/leave/{groupId:int}/{userId:int}
         [HttpDelete("leave/{groupId:int}/{userId:int}")]
+        [Authorize]
         public async Task<IActionResult> LeaveGroup([FromRoute] int groupId, [FromRoute] int userId)
         {
             try
