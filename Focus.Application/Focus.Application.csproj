@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.Core" Version="1.46.2" />
     <PackageReference Include="LinqKit" Version="1.3.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.5" />
@@ -26,6 +27,15 @@
 
   <ItemGroup>
     <Folder Include="Utils\Messages\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Azure.Storage.Blobs">
+      <HintPath>..\..\..\..\..\.nuget\packages\azure.storage.blobs\12.24.1\lib\net8.0\Azure.Storage.Blobs.dll</HintPath>
+    </Reference>
+    <Reference Include="Azure.Storage.Common">
+      <HintPath>..\..\..\..\..\.nuget\packages\azure.storage.common\12.23.0\lib\net8.0\Azure.Storage.Common.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

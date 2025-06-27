@@ -8,6 +8,16 @@ using Focus.Infra.Repositories.Interfaces;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+
+// Grants the access to secrets in development
+/*
+builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+   .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+   .AddUserSecrets<Program>(optional: true) 
+   .Build();
+ 
+ */
+
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
 builder.Services.AddScoped<IGroupRepository, GroupRepository>();
@@ -17,6 +27,7 @@ builder.Services.AddScoped<IActivityService, ActivityService>();
 builder.Services.AddScoped<IGroupService, GroupService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IFeedService, FeedService>();
+builder.Services.AddScoped<IMediaUploadService, AzureBlobUploadService>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddDbContext<FocusDbContext>(
     options => options.UseNpgsql(builder.Configuration.GetConnectionString("DbConnection")));
