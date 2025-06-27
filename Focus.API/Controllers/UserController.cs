@@ -1,10 +1,13 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Focus.Application.Services;
 using Focus.Application.DTO.User;
 using Focus.Application.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using Focus.Infra.Repositories;
 using Focus.Application.Specifications;
 using Focus.Domain.Entities;
-
 
 namespace Focus.API.Controllers
 {
@@ -14,13 +17,16 @@ namespace Focus.API.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly UserRepository _userRepository;
         private readonly IUserGroupService _userGroupService;
+        private readonly ITokenService _tokenService;
 
-        public UserController(IUserService userService, IUserGroupService userGroupService
-            )
+        public UserController(IUserService userService, IUserGroupService userGroupService, ITokenService tokenService)
+
         {
             _userService = userService;
             _userGroupService = userGroupService;
+            _tokenService = tokenService;
         }
 
         // GET: api/<User>

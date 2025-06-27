@@ -32,8 +32,20 @@ public class GroupRepository : IGroupRepository
         return await _context.SaveChangesAsync() > 0;
     }
 
-    public async Task<bool> UpdateAsync() =>   
-        await _context.SaveChangesAsync() > 0;
+    public async Task UpdateAsync(int id, Group newGroup)
+    {
+        var groupToUpdate = await _context.Groups.FindAsync(id);
+        if (groupToUpdate == null)
+        {
+            throw new KeyNotFoundException($"Group with id {id} not found.");
+        }
+
+        groupToUpdate.Name = newGroup.Name;
+        groupToUpdate.Description = newGroup.Description;
+        groupToUpdate.UpdatedAt = newGroup.UpdatedAt;
+
+        await _context.SaveChangesAsync();
+    }
 
     public async Task<bool> DeleteAsync(int id)
     {
@@ -45,7 +57,12 @@ public class GroupRepository : IGroupRepository
         _context.Remove(group);
         return await _context.SaveChangesAsync() > 0;
     }
-    
+
+    public Task<Group?> GetFirstOrDefaultAsync(ISpecification<Group> spec)
+    {
+        throw new NotImplementedException();
+    }
+
     private IQueryable<Group> ApplySpecification(ISpecification<Group>? spec)
     {
         return SpecificationEvaluator<Group>.GetQuery(_context.Groups.AsQueryable(), spec);

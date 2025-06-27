@@ -41,29 +41,30 @@ public class UserService : IUserService
             throw new ArgumentNullException(nameof(userDto), "User cannot be null.");
         }
         var user = userDto.ToUser();
+        user.Password = BCrypt.Net.BCrypt.HashPassword(userDto.Password);
         if (!await _userRepository.AddAsync(user))
         {
             throw new Exception("Failed to add user.");
         }
     }
-
     public async Task Update(int id, UpdateUserDto newUserDto)
     {
-        var updateUser = await _userRepository.GetByIdAsync(id);
         if (newUserDto == null)
         {
-            throw new ArgumentNullException(nameof(newUserDto), "User cannot be null.");
+            throw new ArgumentNullException(nameof(newUserDto), "User DTO cannot be null.");
         }
-        if (updateUser == null)
+
+        var userToUpdate = await _userRepository.GetByIdAsync(id);
+        if (userToUpdate == null)
         {
             throw new KeyNotFoundException($"User with id {id} not found on service.");
         }
-        newUserDto.MapTo(updateUser);
-        if (!await _userRepository.UpdateAsync())
-        {
-            throw new Exception($"Failed to update user with id {id}.");
-        }
-            
+
+        userToUpdate.Username = newUserDto.Username;
+        userToUpdate.Email = newUserDto.Email;
+        userToUpdate.Description = newUserDto.Description;
+
+        await _userRepository.UpdateAsync(id, userToUpdate);
     }
 
     public async Task Delete(int id)

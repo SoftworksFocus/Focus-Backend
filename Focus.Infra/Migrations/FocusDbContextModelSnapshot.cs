@@ -89,6 +89,10 @@ namespace Focus.Infra.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<string>("ProfilePictureUrl")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -100,6 +104,41 @@ namespace Focus.Infra.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Groups", (string)null);
+                });
+
+            modelBuilder.Entity("Focus.Domain.Entities.Media", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ActivityId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Caption")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActivityId");
+
+                    b.ToTable("Media", (string)null);
                 });
 
             modelBuilder.Entity("Focus.Domain.Entities.User", b =>
@@ -124,8 +163,12 @@ namespace Focus.Infra.Migrations
 
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("ProfilePictureUrl")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -181,6 +224,40 @@ namespace Focus.Infra.Migrations
                     b.ToTable("UserGroups", (string)null);
                 });
 
+            modelBuilder.Entity("Focus.Domain.Entities.UserToken", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsRevoked")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("RefreshTokenHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserTokens", (string)null);
+                });
+
             modelBuilder.Entity("Focus.Domain.Entities.Activity", b =>
                 {
                     b.HasOne("Focus.Domain.Entities.Group", "Group")
@@ -205,6 +282,17 @@ namespace Focus.Infra.Migrations
                         .HasForeignKey("UserId");
                 });
 
+            modelBuilder.Entity("Focus.Domain.Entities.Media", b =>
+                {
+                    b.HasOne("Focus.Domain.Entities.Activity", "Activity")
+                        .WithMany("Media")
+                        .HasForeignKey("ActivityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Activity");
+                });
+
             modelBuilder.Entity("Focus.Domain.Entities.UserGroup", b =>
                 {
                     b.HasOne("Focus.Domain.Entities.Group", "Group")
@@ -224,6 +312,22 @@ namespace Focus.Infra.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Focus.Domain.Entities.UserToken", b =>
+                {
+                    b.HasOne("Focus.Domain.Entities.User", "User")
+                        .WithMany("UserTokens")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Focus.Domain.Entities.Activity", b =>
+                {
+                    b.Navigation("Media");
+                });
+
             modelBuilder.Entity("Focus.Domain.Entities.Group", b =>
                 {
                     b.Navigation("Members");
@@ -236,6 +340,8 @@ namespace Focus.Infra.Migrations
                     b.Navigation("Groups");
 
                     b.Navigation("OwnedGroups");
+
+                    b.Navigation("UserTokens");
                 });
 #pragma warning restore 612, 618
         }

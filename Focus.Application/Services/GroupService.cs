@@ -45,22 +45,19 @@ public class GroupService : IGroupService
         }
     }
 
-    public async Task Update(int id, UpdateGroupDto newGroupDto)
+    public async Task Update(int id, UpdateGroupDto groupDto)
     {
-        var existingGroup = await _groupRepository.GetByIdAsync(id);
-        if (existingGroup == null)
+        var groupToUpdate = await _groupRepository.GetByIdAsync(id);
+
+        if (groupToUpdate == null)
         {
-            throw new ArgumentNullException($"Group with {id} not found.");
+            throw new KeyNotFoundException($"Group with ID {id} not found.");
         }
-        if (newGroupDto == null)
-        {
-            throw new ArgumentNullException(nameof(newGroupDto), "Group cannot be null.");
-        }
-        newGroupDto.MapTo(existingGroup);
-        if(!await _groupRepository.UpdateAsync())
-        {
-            throw new Exception($"Group with {id} not Updated.");
-        }
+
+        groupToUpdate.Name = groupDto.Name;
+        groupToUpdate.Description = groupDto.Description;
+
+        await _groupRepository.UpdateAsync(id, groupToUpdate);
     }
 
     public async Task Delete(int id)
