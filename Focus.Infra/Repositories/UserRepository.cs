@@ -82,5 +82,11 @@ public class UserRepository : IUserRepository
 
         return user!;
     }
+    
+    public async Task<User?> FindByEmailVerificationTokenAsync(string hashedToken)
+    {
+        return await _context.Users
+            .FirstOrDefaultAsync(u => u.EmailVerificationToken == hashedToken);
+    }
 
 }

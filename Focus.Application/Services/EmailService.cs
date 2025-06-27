@@ -38,6 +38,18 @@ public class EmailService : IEmailService
 
         await SendEmailAsync(toEmail, "Password Reset Request - Focus App", emailBody);
     }
+    
+    public async Task SendConfirmNewEmailAsync(string toEmail, string token)
+    {
+        //Todo: Verify the link from the frontend
+        var confirmationLink = $"{_configuration["FrontendUrls:EmailChangeConfirmation"]}{token}";
+        
+        var emailBody = $"<h1>Confirm your new Email Address</h1>" +
+                        $"<p>To finalize your email change, please click the link below:</p>" +
+                        $"<a href='{confirmationLink}'>Confirm New Email</a>";
+
+        await SendEmailAsync(toEmail, "Confirm your New Email - Focus App", emailBody);
+    }
 
     private async Task SendEmailAsync(string to, string subject, string htmlContent)
     {
