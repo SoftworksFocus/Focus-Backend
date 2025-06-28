@@ -14,6 +14,7 @@ namespace Focus.Infra
         public DbSet<Group> Groups { get; set; }
         public DbSet<UserGroup> UserGroups { get; set; }
         public DbSet<UserToken> UserTokens { get; set; }
+        public DbSet<Media> Media { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {  
