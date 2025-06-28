@@ -9,10 +9,12 @@ namespace Focus.Application.Services;
 
 public class ActivityService : IActivityService {
     private readonly IActivityRepository _activityRepository;
+    private readonly IMediaRepository _mediaRepository;
 
-    public ActivityService(IActivityRepository activityRepository)
+    public ActivityService(IActivityRepository activityRepository, IMediaRepository mediaRepository)
     {
         _activityRepository = activityRepository;
+        _mediaRepository = mediaRepository;
     }
 
     public async Task<GetActivityDto?> GetById(int id)
@@ -73,5 +75,25 @@ public class ActivityService : IActivityService {
         {
             throw new KeyNotFoundException($"Activity with ID {id} not found.");
         }
+    }
+
+    public async Task UpdateMedia(int activityId, string mediaUrl, string? caption)
+    {
+        var activity = await _activityRepository.GetByIdAsync(activityId);
+        if (activity == null)
+        {
+            throw new KeyNotFoundException($"Activity not found.");
+        }
+        var newMedia = new Media
+        {
+            Url = mediaUrl,
+            Caption = caption,
+            ActivityId = activityId,
+            DisplayOrder = (activity.Media?.Count ?? 0) + 1,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+        await _mediaRepository.AddAsync(newMedia);
+        await _activityRepository.UpdateAsync(activityId, activity);
     }
 }
