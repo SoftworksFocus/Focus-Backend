@@ -4,6 +4,6 @@ namespace Focus.Application.Services.Interfaces;
 
 public interface IMediaUploadService
 {
-    Task<string> UploadMediaAsync(IFormFile file, string containerName);
+    Task<string> UploadMediaAsync(IFormFile file);
 
 }

@@ -3,4 +3,7 @@ using Focus.Domain.Entities;
 
 namespace Focus.Application.Services.Interfaces;
 
-public interface IGroupService : IService<Group, GetGroupDto, CreateGroupDto, UpdateGroupDto>;
+public interface IGroupService : IService<Group, GetGroupDto, CreateGroupDto, UpdateGroupDto>
+{
+    Task UpdateProfilePicture(int userId, string mediaUrl);
+}

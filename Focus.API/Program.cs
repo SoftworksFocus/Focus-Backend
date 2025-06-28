@@ -14,13 +14,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 // Grants the access to secrets in development
-/*
-builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-   .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
-   .AddUserSecrets<Program>(optional: true) 
-   .Build()
- 
- */
+// builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+//     .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+//     .AddUserSecrets<Program>(optional: true)
+//     .Build();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
