@@ -1,9 +1,8 @@
 using Focus.Application.DTO.Group;
 using Focus.Application.DTO.User;
-using Focus.Application.Services;
 using Focus.Application.Services.Interfaces;
 using Focus.Application.Specifications;
-using Focus.Domain.Entities;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Focus.API.Controllers
@@ -14,11 +13,13 @@ namespace Focus.API.Controllers
     {
         private readonly IGroupService _groupService;
         private readonly IUserGroupService _userGroupService;
+        private readonly IMediaUploadService _mediaUploadService;
 
-        public GroupController(IGroupService groupService, IUserGroupService userGroupService)
+        public GroupController(IGroupService groupService, IUserGroupService userGroupService, IMediaUploadService mediaUploadService)
         {
             _groupService = groupService;
             _userGroupService = userGroupService;
+            _mediaUploadService = mediaUploadService;
         }
 
         // GET: api/<GroupController>
@@ -125,6 +126,30 @@ namespace Focus.API.Controllers
             {
                 var members = await _userGroupService.GetAllMembersFromGroup(id);
                 return Ok(members);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+        
+        // POST api/<GroupController>/5/profile-picture
+        [HttpPost("{groupId:int}/profile-picture")]
+        public async Task<ActionResult> UploadProfilePicture(int groupId, IFormFile file)
+        {
+            try
+            {
+                if (file.Length == 0)
+                {
+                    return BadRequest("File is empty or not provided.");
+                }
+                var mediaUrl = await _mediaUploadService.UploadMediaAsync(file);
+                await _groupService.UpdateProfilePicture(groupId, mediaUrl);
+                return Ok(new { MediaUrl = mediaUrl });
             }
             catch (KeyNotFoundException ex)
             {
