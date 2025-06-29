@@ -49,7 +49,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("refresh-token")]
-    [AllowAnonymous]
+    [Authorize]
     public async Task<IActionResult> RefreshToken()
     {
         var oldRefreshToken = Request.Cookies["refreshToken"];
@@ -57,7 +57,6 @@ public class AuthController : ControllerBase
         {
             return Unauthorized(new { message = "Refresh token not found." });
         }
-
         try
         {
             var authResult = await _authService.RefreshTokenAsync(oldRefreshToken);
@@ -89,47 +88,33 @@ public class AuthController : ControllerBase
     {
         var spec = new UserByEmailSpecification(forgotPasswordDto.Email);
         var user = await _userRepository.GetFirstOrDefaultAsync(spec);
-
         if (user == null)
         {
             return Ok(new { message = "If the provided email is registered, a password reset link will be sent." });
         }
-
         var token = Convert.ToBase64String(System.Security.Cryptography.RandomNumberGenerator.GetBytes(64));
-
         user.PasswordResetToken = HashingService.ComputeSha256Hash(token);
         user.PasswordResetTokenExpiresAt = DateTime.UtcNow.AddHours(1);
-
         await _userRepository.UpdateAsync(user.Id, user);
-
         await _emailService.SendPasswordResetEmail(user.Email, token);
-
         return Ok(new { message = "If the provided email is registered, a password reset link will be sent." });
     }
     
     [HttpPost("reset-password")]
-    [AllowAnonymous]
+    [AllowAnonymous] //Todo: verify a logic to deny malicious activity (using the endpoint without being a user)
     public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto resetPasswordDto)
     {
         var spec = new UserByEmailSpecification(resetPasswordDto.Email);
         var user = await _userRepository.GetFirstOrDefaultAsync(spec);
-
         var hashedTokenFromRequest = HashingService.ComputeSha256Hash(resetPasswordDto.Token);
-
-        if (user == null || 
-            user.PasswordResetToken != hashedTokenFromRequest ||
-            user.PasswordResetTokenExpiresAt <= DateTime.UtcNow)
+        if (user == null || user.PasswordResetToken != hashedTokenFromRequest || user.PasswordResetTokenExpiresAt <= DateTime.UtcNow)
         {
             return BadRequest(new { message = "Invalid or expired password reset link." });
         }
-
         user.Password = BCrypt.Net.BCrypt.HashPassword(resetPasswordDto.NewPassword);
-
         user.PasswordResetToken = null;
         user.PasswordResetTokenExpiresAt = null;
-
         await _userRepository.UpdateAsync(user.Id, user);
-
         return Ok(new { message = "Your password has been reset successfully." });
     }
 

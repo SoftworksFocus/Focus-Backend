@@ -32,15 +32,12 @@ namespace Focus.Application.Services
         {
             var spec = new UserByEmailSpecification(loginUserDto.Email); //Todo: a spec for searching email | password
             var user = await _userRepository.GetFirstOrDefaultAsync(spec);
-
             if (user == null || !BCrypt.Net.BCrypt.Verify(loginUserDto.Password, user.Password))
             {
                 throw new UnauthorizedAccessException("Invalid credentials!");
             }
-            
             var accessToken = GenerateJwtToken(user);
             var refreshToken = await CreateAndSaveRefreshTokenAsync(user);
-
             return new AuthResultDto
             {
                 AccessToken = accessToken,
@@ -54,21 +51,16 @@ namespace Focus.Application.Services
             {
                 throw new SecurityTokenException("Refresh token inválido.");
             }
-            
             var oldTokenHash = HashingService.ComputeSha256Hash(oldRefreshToken);
             var userToken = await _userTokenRepository.GetByRefreshTokenHashAsync(oldTokenHash);
-
             if (userToken == null || userToken.IsRevoked || userToken.ExpiresAt <= DateTime.UtcNow)
             {
                 throw new SecurityTokenException("Refresh token inválido ou expirado.");
             }
-
             userToken.IsRevoked = true;
             await _userTokenRepository.UpdateAsync(userToken);
-
             var newAccessToken = GenerateJwtToken(userToken.User);
             var newRefreshToken = await CreateAndSaveRefreshTokenAsync(userToken.User);
-
             return new AuthResultDto
             {
                 AccessToken = newAccessToken,
@@ -79,17 +71,13 @@ namespace Focus.Application.Services
         public async Task LogoutAsync(string refreshToken)
         {
             if (string.IsNullOrEmpty(refreshToken)) return;
-
             var tokenHash = HashingService.ComputeSha256Hash(refreshToken);
             var userToken = await _userTokenRepository.GetByRefreshTokenHashAsync(tokenHash);
-
             if (userToken != null && !userToken.IsRevoked)
             {
                 userToken.IsRevoked = true;
                 await _userTokenRepository.UpdateAsync(userToken);
             }
-            
-            //Todo: verify if the logic "revoked" is ok.
         }
         
         private string GenerateJwtToken(User user)
@@ -97,9 +85,8 @@ namespace Focus.Application.Services
             var jwtKey = _configuration["Jwt:Key"];
             if (string.IsNullOrEmpty(jwtKey))
             {
-                throw new InvalidOperationException("A configuração 'Jwt:Key' não foi encontrada. Verifique seus arquivos de configuração (appsettings.json, secrets.json)."); //Todo: translate
+                throw new InvalidOperationException("The configuration 'Jwt:Key' has not been found. Verify the configuration file (appsettings.json, secrets.json)."); //Todo: translate
             }
-
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(jwtKey);
             var tokenDescriptor = new SecurityTokenDescriptor
@@ -111,13 +98,11 @@ namespace Focus.Application.Services
                     new Claim(ClaimTypes.Email, user.Email),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 }),
-                
-                Expires = DateTime.UtcNow.AddMinutes(15), //Todo: discuss to expiration time
+                Expires = DateTime.UtcNow.AddMinutes(15),
                 Issuer = _configuration["Jwt:Issuer"],
                 Audience = _configuration["Jwt:Audience"],
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
-
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
@@ -126,7 +111,6 @@ namespace Focus.Application.Services
         {
             var refreshToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
             var refreshTokenHash = HashingService.ComputeSha256Hash(refreshToken);
-
             var userToken = new UserToken
             {
                 UserId = user.Id,
@@ -136,9 +120,7 @@ namespace Focus.Application.Services
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
-            
             await _userTokenRepository.AddAsync(userToken);
-
             return refreshToken;
         }
     }

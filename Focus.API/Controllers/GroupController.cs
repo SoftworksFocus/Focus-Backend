@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Focus.Application.DTO.Group;
 using Focus.Application.DTO.User;
 using Focus.Application.Services;
@@ -11,6 +12,7 @@ namespace Focus.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class GroupController : ControllerBase
     {
         private readonly IGroupService _groupService;
@@ -66,22 +68,41 @@ namespace Focus.API.Controllers
 
         // POST api/<GroupController>
         [HttpPost]
-        [Authorize]
-        public async Task<ActionResult> Post([FromBody] CreateGroupDto group)
+        public async Task<ActionResult<GetGroupDto>> Post([FromBody] CreateGroupDto groupDto)
         {
-            await _groupService.Add(group);
-            return Ok();
+            try
+            {
+                var creatorIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+                if (creatorIdClaim == null)
+                {
+                    return Unauthorized("Creator of the group not found.");
+                }
+
+                var creatorId = int.Parse(creatorIdClaim.Value);
+
+                var createdGroup = await _groupService.CreateGroupAsync(groupDto, creatorId);
+
+                return CreatedAtAction(nameof(GetById), new { id = createdGroup.Id }, createdGroup);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal error ocurred {ex.Message}");
+            }
         }
 
         // PUT api/<GroupController>/5
         [HttpPut("{id:int}")]
-        [Authorize]
         public async Task<ActionResult> Put(int id, [FromBody] UpdateGroupDto group)
         {
             try
             {
-                await _groupService.Update(id, group);
-                return Ok();
+                var requesterId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+                await _groupService.Update(id, group, requesterId);
+                return Ok("Group updated successfully.");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
             }
             catch (KeyNotFoundException ex)
             {
@@ -99,13 +120,17 @@ namespace Focus.API.Controllers
 
         // DELETE api/<GroupController>/5
         [HttpDelete("{id:int}")]
-        [Authorize]
         public async Task<ActionResult> Delete(int id)
         {
             try
             {
-                await _groupService.Delete(id);
-                return Ok();
+                var requesterId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+                await _groupService.Delete(id, requesterId);
+                return Ok("Group deleted successfully.");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
             }
             catch (KeyNotFoundException ex)
             {
@@ -123,7 +148,6 @@ namespace Focus.API.Controllers
 
         // GET api/<GroupController>/5/members
         [HttpGet("{id:int}/members")]
-        [Authorize]
         public async Task<ActionResult<IEnumerable<SummaryUserDto>>> GetMembers(int id)
         {
             try
@@ -134,6 +158,33 @@ namespace Focus.API.Controllers
             catch (KeyNotFoundException ex)
             {
                 return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+        
+        [HttpDelete("{groupId:int}/members/{userId:int}")]
+        public async Task<IActionResult> RemoveMemberFromGroup([FromRoute] int groupId, [FromRoute] int userId)
+        {
+            try
+            {
+                var requesterId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+                await _userGroupService.RemoveUserFromGroupAsync(groupId, userId, requesterId);
+                return Ok("Member removed successfully.");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {

@@ -61,20 +61,16 @@ public class EmailService : IEmailService
         email.To.Add(MailboxAddress.Parse(to));
         email.Subject = subject;
         email.Body = new TextPart(TextFormat.Html.ToString(), htmlContent);
-
         using var smtp = new SmtpClient();
-
         await smtp.ConnectAsync(
             _configuration["EmailSettings:SmtpServer"],
             int.Parse(_configuration["EmailSettings:Port"]),
             SecureSocketOptions.StartTls
         );
-
         await smtp.AuthenticateAsync(
             _configuration["EmailSettings:Username"],
             _configuration["EmailSettings:Password"]
         );
-
         await smtp.SendAsync(email);
         await smtp.DisconnectAsync(true);
     }
