@@ -20,7 +20,7 @@ public class AzureBlobUploadService : IMediaUploadService
     public async Task<string> UploadMediaAsync(IFormFile file)
     {
         if (file.Length == 0)
-            return "File is empty";
+            throw new ArgumentException("File is empty");
         var blobContainerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
         await blobContainerClient.CreateIfNotExistsAsync(PublicAccessType.Blob);
         var blobName = $"{Guid.NewGuid()}-{file.FileName}";
