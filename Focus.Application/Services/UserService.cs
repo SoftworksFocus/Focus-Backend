@@ -87,6 +87,7 @@ public class UserService : IUserService
             throw new KeyNotFoundException($"User not found.");
         }
         user.ProfilePictureUrl = mediaUrl;
+        user.UpdatedAt = DateTime.UtcNow;
         await _userRepository.UpdateAsync(userId, user);
     }
 }
