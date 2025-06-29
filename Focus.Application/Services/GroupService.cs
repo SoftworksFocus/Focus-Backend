@@ -77,6 +77,7 @@ public class GroupService : IGroupService
             throw new KeyNotFoundException($"Group not found.");
         }
         group.ProfilePictureUrl = mediaUrl;
+        group.UpdatedAt = DateTime.UtcNow;
         await _groupRepository.UpdateAsync(groupId, group);
     }
 }
