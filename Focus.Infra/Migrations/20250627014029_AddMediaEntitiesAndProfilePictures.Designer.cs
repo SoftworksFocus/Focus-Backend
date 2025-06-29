@@ -3,6 +3,7 @@ using System;
 using Focus.Infra;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Focus.Infra.Migrations
 {
     [DbContext(typeof(FocusDbContext))]
-    partial class FocusDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250627014029_AddMediaEntitiesAndProfilePictures")]
+    partial class AddMediaEntitiesAndProfilePictures
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

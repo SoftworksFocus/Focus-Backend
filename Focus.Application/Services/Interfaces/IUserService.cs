@@ -4,4 +4,7 @@ using Focus.Domain.Specifications;
 
 namespace Focus.Application.Services.Interfaces;
 
-public interface IUserService : IService<User, GetUserDto, CreateUserDto, UpdateUserDto>;
+public interface IUserService : IService<User, GetUserDto, CreateUserDto, UpdateUserDto>
+{
+    Task UpdateProfilePicture(int userId, string mediaUrl);
+}

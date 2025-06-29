@@ -56,6 +56,7 @@ public class GroupService : IGroupService
 
         groupToUpdate.Name = groupDto.Name;
         groupToUpdate.Description = groupDto.Description;
+        groupToUpdate.UpdatedAt = DateTime.UtcNow;
 
         await _groupRepository.UpdateAsync(id, groupToUpdate);
     }
@@ -66,5 +67,17 @@ public class GroupService : IGroupService
         {
             throw new Exception($"Group with {id} not Deleted.");
         }
+    }
+
+    public async Task UpdateProfilePicture(int groupId, string mediaUrl)
+    {
+        var group = await _groupRepository.GetByIdAsync(groupId);
+        if (group == null)
+        {
+            throw new KeyNotFoundException($"Group not found.");
+        }
+        group.ProfilePictureUrl = mediaUrl;
+        group.UpdatedAt = DateTime.UtcNow;
+        await _groupRepository.UpdateAsync(groupId, group);
     }
 }

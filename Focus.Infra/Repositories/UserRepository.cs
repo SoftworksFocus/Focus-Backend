@@ -46,7 +46,6 @@ public class UserRepository : IUserRepository
             existingUser.Email = updatedUser.Email;
             existingUser.Description = updatedUser.Description;
             existingUser.UpdatedAt = DateTime.UtcNow;
-        
             await _context.SaveChangesAsync();
         }
         else

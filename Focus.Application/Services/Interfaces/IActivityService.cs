@@ -4,4 +4,7 @@ using Focus.Domain.Specifications;
 
 namespace Focus.Application.Services.Interfaces;
 
-public interface IActivityService : IService<Activity, GetActivityDto, CreateActivityDto, UpdateActivityDto>;
+public interface IActivityService : IService<Activity, GetActivityDto, CreateActivityDto, UpdateActivityDto>
+{
+    Task UpdateMedia(int activityId, string mediaUrl, string? caption);
+}

@@ -74,5 +74,20 @@ public class UserService : IUserService
             throw new Exception($"Failed to delete user with id {id}.");
         }
     }
-    
+
+    public async Task UpdateProfilePicture(int userId, string mediaUrl)
+    {
+        if (string.IsNullOrEmpty(mediaUrl))
+        {
+            throw new ArgumentNullException(nameof(mediaUrl), "Media URL cannot be null or empty.");
+        }
+        var user = await _userRepository.GetByIdAsync(userId);
+        if (user == null)
+        {
+            throw new KeyNotFoundException($"User not found.");
+        }
+        user.ProfilePictureUrl = mediaUrl;
+        user.UpdatedAt = DateTime.UtcNow;
+        await _userRepository.UpdateAsync(userId, user);
+    }
 }

@@ -5,6 +5,7 @@ public class SummaryGroupDto : PlainGroupDto
     public static SummaryGroupDto FromGroup(Group group) =>
         new SummaryGroupDto
         {
+            ProfilePictureUrl = group.ProfilePictureUrl, 
             Name = group.Name,
             Description = group.Description,
         };

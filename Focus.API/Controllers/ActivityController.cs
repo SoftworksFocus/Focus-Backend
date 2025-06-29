@@ -1,5 +1,6 @@
 
 using Focus.Application.DTO.Activity;
+using Focus.Application.DTO.Media;
 using Focus.Application.Services;
 using Focus.Application.Services.Interfaces;
 using Focus.Application.Specifications;
@@ -13,10 +14,12 @@ namespace Focus.API.Controllers
     public class ActivityController : ControllerBase
     {
         private readonly IActivityService _activityService;
+        private readonly IMediaUploadService _mediaUploadService;
 
-        public ActivityController(IActivityService activityService)
+        public ActivityController(IActivityService activityService, IMediaUploadService mediaUploadService)
         {
             _activityService = activityService;
+            _mediaUploadService = mediaUploadService;
         }
 
         // GET: api/Activity
@@ -116,5 +119,36 @@ namespace Focus.API.Controllers
             }
         }
         
+        // POST: api/Activity/{activityId:int}/upload-media
+        [HttpPost("{activityId:int}/upload-media")]
+        public async Task<IActionResult> UploadMedia([FromRoute] int activityId, [FromForm] UploadMediaDto uploadDto)
+        {
+            try
+            {
+                // var caption = "debug";
+                if (uploadDto.File.Length == 0)
+                {
+                    return BadRequest("File is required.");
+                }
+                var mediaUrl = await _mediaUploadService.UploadMediaAsync(uploadDto.File);
+                if (string.IsNullOrEmpty(mediaUrl))
+                {
+                    return StatusCode(500, "Failed to upload media.");
+                }
+
+                await _activityService.UpdateMedia(activityId, mediaUrl, uploadDto.Caption);
+                return CreatedAtAction(nameof(UploadMedia), 
+                    new { activityId }, 
+                    new { MediaUrl = mediaUrl, Caption = uploadDto.Caption });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
     }
 }

@@ -12,6 +12,7 @@ namespace Focus.Application.Specifications
         {
             AddInclude(a => a.User);
             AddInclude(a => a.Group);
+            AddInclude(a => a.Media);
         }
         
         // public ActivityFilterSpecification(int ownerId) : base(BuildPredicate(ownerId))

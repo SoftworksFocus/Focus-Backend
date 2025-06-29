@@ -18,6 +18,7 @@ public class GetGroupDto : PlainGroupDto
         return new GetGroupDto
         {
             Id = group.Id,
+            ProfilePictureUrl = group.ProfilePictureUrl, 
             Name = group.Name,
             Description = group.Description,
             CreatedAt = group.CreatedAt,
