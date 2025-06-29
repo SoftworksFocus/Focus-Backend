@@ -215,7 +215,7 @@ public class UserController : ControllerBase
     
     // POST api/<User>/{userId}/profile-picture
     [HttpPost("{userId:int}/profile-picture")]
-    public async Task<IActionResult> UploadProfilePicture([FromRoute] int userId, IFormFile file)
+    public async Task<IActionResult> UploadProfilePicture([FromRoute] int userId, /* [FromForm] gives a bug*/IFormFile file)
     {
         try
         {

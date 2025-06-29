@@ -5,5 +5,5 @@ namespace Focus.Application.Services.Interfaces;
 
 public interface IGroupService : IService<Group, GetGroupDto, CreateGroupDto, UpdateGroupDto>
 {
-    Task UpdateProfilePicture(int userId, string mediaUrl);
+    Task UpdateProfilePicture(int groupId, string mediaUrl);
 }

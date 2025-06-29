@@ -19,6 +19,8 @@ public class ActivityRepository : IActivityRepository
     {
         var  activity = await _context.Activities
             .Include( a => a.User)
+            .Include( a => a.Group)
+            .Include( a => a.Media)
             .FirstOrDefaultAsync(a => a.Id == id);
         return activity;
     }
