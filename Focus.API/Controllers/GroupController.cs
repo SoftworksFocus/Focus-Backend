@@ -88,7 +88,7 @@ namespace Focus.API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal error ocurred {ex.Message}");
+                return StatusCode(500, $"Internal error occurred {ex.Message}");
             }
         }
 
