@@ -26,13 +26,15 @@ namespace Focus.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<GetActivityDto>>> GetActivities(
             [FromQuery] string? ownerUsernameFilter = null,
-            [FromQuery] int? groupId = null
-            )
+            [FromQuery] int? groupId = null,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10
+        )
         {
             try
             {
                 var spec = new ActivityFilterSpecification(ownerUsernameFilter, groupId);
-                var activities = await _activityService.GetAllAsync(spec);
+                var activities = await _activityService.GetAllAsync(spec, pageNumber, pageSize);
                 return Ok(activities);
             }
             catch (KeyNotFoundException ex)

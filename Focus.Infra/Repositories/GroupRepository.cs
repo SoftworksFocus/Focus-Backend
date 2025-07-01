@@ -21,9 +21,15 @@ public class GroupRepository : IGroupRepository
         return group;
     }
 
-    public Task<List<Group>> ListAsync(ISpecification<Group>? spec)
+    public async Task<List<Group>> ListAsync(ISpecification<Group> spec, int pageNumber, int pageSize)
     {
-        return ApplySpecification(spec).ToListAsync();
+        var query = ApplySpecification(spec);
+        return await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+    }
+
+    public async Task<int> CountAsync(ISpecification<Group> spec)
+    {
+        return await ApplySpecification(spec).CountAsync();
     }
 
     public async Task<bool> AddAsync(Group group)

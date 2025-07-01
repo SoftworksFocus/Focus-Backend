@@ -18,12 +18,12 @@ namespace Focus.API.Controllers;
         }
         
         // GET: api/<FeedController>
-        [HttpGet("/{userId:int}")]
-        public async Task<ActionResult<List<GetActivityDto>>> Get([FromRoute] int userId)
+        [HttpGet("{userId:int}")]
+        public async Task<ActionResult<List<GetActivityDto>>> Get([FromRoute] int userId, [FromQuery] DateTime? cursor, [FromQuery] int pageSize = 10)
         {
             try
             {
-                var activities = await _feedService.GetFeedForUserAsync(userId);
+                var activities = await _feedService.GetFeedForUserAsync(userId, cursor, pageSize);
                 return Ok(activities);
             }
             catch (KeyNotFoundException ex)

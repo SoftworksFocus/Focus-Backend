@@ -27,18 +27,15 @@ namespace Focus.Infra
             
             modelBuilder.Entity<User>().Property( u => u.Username)
                 .IsRequired()
-                .HasMaxLength(70);
+                .HasMaxLength(50);
             modelBuilder.Entity<User>().Property( u => u.Email)
                 .IsRequired()
-                .HasMaxLength(250);
+                .HasMaxLength(50);
             modelBuilder.Entity<User>().Property( u => u.Password)
-                .HasMaxLength(300)
-                .IsRequired();
-                
+                .IsRequired()
+                .HasMaxLength(100);
             modelBuilder.Entity<User>().Property( u => u.Description)
                 .HasMaxLength(250);
-            modelBuilder.Entity<User>().Property(u => u.ProfilePictureUrl)
-                .HasMaxLength(200);
             
             #endregion
             
@@ -49,12 +46,11 @@ namespace Focus.Infra
             modelBuilder.Entity<Group>().Property( g => g.Id)
                 .ValueGeneratedOnAdd();
             
+            
             modelBuilder.Entity<Group>().Property( g => g.Name)
                 .IsRequired()
                 .HasMaxLength(50);
             modelBuilder.Entity<Group>().Property( g => g.Description)
-                .HasMaxLength(200);
-            modelBuilder.Entity<Group>().Property(g => g.ProfilePictureUrl)
                 .HasMaxLength(200);
             #endregion
 
