@@ -40,7 +40,7 @@ public class GroupService : IGroupService
         return groups.Select(GetGroupDto.FromGroup).ToList();
     }
 
-    public async Task Add(CreateGroupDto createGroupDto)
+    public async Task Add(CreateGroupDto createGroupDto) // Todo: exclude?
     {
         if (createGroupDto == null)
         {
@@ -69,6 +69,7 @@ public class GroupService : IGroupService
 
         groupToUpdate.Name = groupDto.Name;
         groupToUpdate.Description = groupDto.Description;
+        groupToUpdate.UpdatedAt = DateTime.UtcNow;
 
         await _groupRepository.UpdateAsync(id, groupToUpdate);
     }
@@ -106,4 +107,15 @@ public class GroupService : IGroupService
         await _userGroupRepository.MakeRelationship(adminRelationship);
         return GetGroupDto.FromGroup(group);
     }
-}
+
+    public async Task UpdateProfilePicture(int groupId, string mediaUrl)
+    {
+        var group = await _groupRepository.GetByIdAsync(groupId);
+        if (group == null)
+        {
+            throw new KeyNotFoundException($"Group not found.");
+        }
+        group.ProfilePictureUrl = mediaUrl;
+        group.UpdatedAt = DateTime.UtcNow;
+        await _groupRepository.UpdateAsync(groupId, group);
+    }

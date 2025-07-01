@@ -12,6 +12,7 @@ public class GetUserDto : PlainUserDto
         new GetUserDto
         {
             Id = user.Id,
+            ProfilePictureUrl = user.ProfilePictureUrl,
             Username = user.Username,
             Email = user.Email,
             Description = user.Description,

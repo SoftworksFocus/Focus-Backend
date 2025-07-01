@@ -14,6 +14,7 @@ namespace Focus.Application.Specifications
         {
             AddInclude(a => a.User);
             AddInclude(a => a.Group);
+            AddInclude(a => a.Media);
             ApplyOrderByDescending(a => a.CreatedAt);
         }
 
