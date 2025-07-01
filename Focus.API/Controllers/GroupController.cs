@@ -1,10 +1,7 @@
-using System.Security.Claims;
 using Focus.Application.DTO.Group;
 using Focus.Application.DTO.User;
 using Focus.Application.Services.Interfaces;
 using Focus.Application.Specifications;
-using Focus.Domain.Entities;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,7 +9,6 @@ namespace Focus.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
     public class GroupController : ControllerBase
     {
         private readonly IGroupService _groupService;
@@ -70,26 +66,10 @@ namespace Focus.API.Controllers
 
         // POST api/<GroupController>
         [HttpPost]
-        public async Task<ActionResult<GetGroupDto>> Post([FromBody] CreateGroupDto groupDto)
+        public async Task<ActionResult> Post([FromBody] CreateGroupDto group)
         {
-            try
-            {
-                var creatorIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-                if (creatorIdClaim == null)
-                {
-                    return Unauthorized("Creator of the group not found.");
-                }
-
-                var creatorId = int.Parse(creatorIdClaim.Value);
-
-                var createdGroup = await _groupService.CreateGroupAsync(groupDto, creatorId);
-
-                return CreatedAtAction(nameof(GetById), new { id = createdGroup.Id }, createdGroup);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal error occurred {ex.Message}");
-            }
+            await _groupService.Add(group);
+            return Ok();
         }
 
         // PUT api/<GroupController>/5
@@ -199,10 +179,6 @@ namespace Focus.API.Controllers
             catch (KeyNotFoundException ex)
             {
                 return NotFound(ex.Message);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {

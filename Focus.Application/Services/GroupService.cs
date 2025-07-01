@@ -17,13 +17,6 @@ public class GroupService : IGroupService
     public GroupService(IGroupRepository groupRepository, IUserGroupRepository userGroupRepository)
     {
         _groupRepository = groupRepository;
-        _userGroupRepository = userGroupRepository;
-    }
-
-    private async Task<bool> IsUserAdminAsync(int userId, int groupId)
-    {
-        var userGroup = await _userGroupRepository.GetByIdAsync(userId, groupId);
-        return userGroup != null && userGroup.IsAdmin;
     }
 
     public async Task<GetGroupDto?> GetById(int id)
@@ -43,7 +36,7 @@ public class GroupService : IGroupService
         return groups.Select(GetGroupDto.FromGroup).ToList();
     }
 
-    public async Task Add(CreateGroupDto createGroupDto) // Todo: exclude?
+    public async Task Add(CreateGroupDto createGroupDto)
     {
         if (createGroupDto == null)
         {
@@ -62,7 +55,6 @@ public class GroupService : IGroupService
         {
             throw new UnauthorizedAccessException("Only administrators can update the group.");
         }
-
         var groupToUpdate = await _groupRepository.GetByIdAsync(id);
         if (groupToUpdate == null)
         {
@@ -75,17 +67,12 @@ public class GroupService : IGroupService
 
     public async Task DeleteAsync(int id, int requesterId)
     {
-        if (!await IsUserAdminAsync(requesterId, id))
-        {
-            throw new UnauthorizedAccessException("Apenas administradores podem deletar o grupo.");
-        }
-
         if (!await _groupRepository.DeleteAsync(id))
         {
             throw new Exception($"Group with {id} not Deleted.");
         }
     }
-
+    
     public async Task<GetGroupDto> CreateGroupAsync(CreateGroupDto createGroupDto, int creatorId)
     {
         if (createGroupDto == null)

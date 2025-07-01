@@ -6,13 +6,11 @@ using Focus.Application.Services.Interfaces;
 using Focus.Application.Specifications;
 using Microsoft.AspNetCore.Mvc;
 using Focus.Domain.Entities;
-using Microsoft.AspNetCore.Authorization;
 
 namespace Focus.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
     public class ActivityController : ControllerBase
     {
         private readonly IActivityService _activityService;

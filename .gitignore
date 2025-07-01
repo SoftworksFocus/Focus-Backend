@@ -50,7 +50,3 @@ TestResults/
 .vs
 .vs/
 .vs\
-/Focus.Infra/Migrations/20250625150509_TestingUserToken2.cs
-/Focus.Infra/Migrations/20250625150509_TestingUserToken2.Designer.cs
-/Focus.Infra/Migrations/20250625152409_FinalTestingUserToken.cs
-/Focus.Infra/Migrations/20250625152409_FinalTestingUserToken.Designer.cs
