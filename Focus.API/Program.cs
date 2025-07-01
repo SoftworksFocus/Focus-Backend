@@ -8,7 +8,6 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
 using Focus.Infra.Repositories.Interfaces;
-using Focus.Infra.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,7 +33,6 @@ builder.Services.AddScoped<IMediaUploadService, AzureBlobUploadService>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddScoped<ITokenService , TokenService>();
 builder.Services.AddScoped<IUserTokenRepository, UserTokenRepository>();
-builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddDbContext<FocusDbContext>(
     options => options.UseNpgsql(builder.Configuration.GetConnectionString("DbConnection")));
 

@@ -1,14 +1,12 @@
 using Focus.Application.DTO.Activity;
 using Focus.Application.Services;
 using Focus.Application.Services.Interfaces;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 namespace Focus.API.Controllers;
 
 
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
     public class FeedController : ControllerBase
     {
 
