@@ -6,5 +6,5 @@ public class ChangeEmailRequestDto
 {
     [Required]
     [EmailAddress]
-    public string NewEmail { get; set; }
+    public string NewEmail { get; set; } = null!;
 }
