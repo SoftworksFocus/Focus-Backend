@@ -10,8 +10,9 @@ namespace Focus.Application.Services.Interfaces
         public Task<IEnumerable<SummaryGroupDto>?> GetAllGroupsFromUser(int userId);
         public Task<UserGroup?> GetById(int userId, int groupId);
         public Task AddUserToGroupAsync(int userId, int groupId, bool isAdmin = false);
-        public Task ToggleRoleAdmin(int userId, int groupId);
+        public Task ToggleRoleAdmin(int userId, int groupId, int requesterId);
         public Task RemoveUserFromGroupAsync(int userId, int groupId);
+        public Task RemoveUserFromGroupAsync(int groupId, int userIdToRemove, int requesterId);
 
     }
 }

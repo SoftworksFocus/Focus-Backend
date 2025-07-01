@@ -1,13 +1,15 @@
 using Microsoft.AspNetCore.Mvc;
 using Focus.Application.DTO.User;
 using Focus.Application.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Focus.Infra.Repositories;
 using Focus.Application.Specifications;
 
 namespace Focus.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-
+[Authorize]
 public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
@@ -72,14 +74,15 @@ public class UserController : ControllerBase
         }
     }
 
-    // POST api/<User>
+        // POST api/<User>
     [HttpPost]
+    [AllowAnonymous]
     public async Task<IActionResult> Add([FromBody] CreateUserDto userDto)
     {
         try
         {
             await _userService.Add(userDto);
-            return Ok();
+            return Ok("User created successfully.");
         }
         catch (ArgumentNullException ex)
         {
@@ -98,7 +101,7 @@ public class UserController : ControllerBase
         try
         {
             await _userService.Update(id, userDto);
-            return Ok();
+            return Ok("User updated successfully.");
         }
         catch (KeyNotFoundException ex)
         {
@@ -121,7 +124,7 @@ public class UserController : ControllerBase
         try
         {
             await _userService.Delete(id);
-            return Ok();
+            return Ok("User deleted successfully.");
         }
         catch (KeyNotFoundException ex)
         {
@@ -156,22 +159,23 @@ public class UserController : ControllerBase
     [HttpPost("join/{groupId:int}/{userId:int}")]
     public async Task<IActionResult> JoinGroup([FromRoute] int groupId, [FromRoute] int userId)
     {
-        try
-        {
-            await _userGroupService.AddUserToGroupAsync(userId, groupId);
-            return Ok();
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(ex.Message);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"Internal server error: {ex.Message}");
+    try
+    {
+        await _userGroupService.AddUserToGroupAsync(userId, groupId);
+        return Ok("User successfully added to group.");
+    }
+    catch (ArgumentException ex)
+    {
+        return BadRequest(ex.Message);
+    }
+    catch (KeyNotFoundException ex)
+    {
+        return NotFound(ex.Message);
+    }
+    catch (Exception ex)
+    {
+        return StatusCode(500, $"Internal server error: {ex.Message}");
+    }
         }
     }
 
@@ -181,8 +185,13 @@ public class UserController : ControllerBase
     {
         try
         {
-            await _userGroupService.ToggleRoleAdmin(userId, groupId);
-            return Ok();
+            var requesterId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            await _userGroupService.ToggleRoleAdmin(userId, groupId, requesterId);
+            return Ok("Admin role toggled successfully.");
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(ex.Message);
         }
         catch (KeyNotFoundException ex)
         {
@@ -201,7 +210,7 @@ public class UserController : ControllerBase
         try
         {
             await _userGroupService.RemoveUserFromGroupAsync(userId, groupId);
-            return Ok();
+            return Ok("Successfully left the group.");
         }
         catch (KeyNotFoundException ex)
         {
@@ -223,7 +232,6 @@ public class UserController : ControllerBase
             {
                 return BadRequest("File is empty or not provided.");
             }
-
             var mediaUrl = await _mediaUploadService.UploadMediaAsync(file);
             await _userService.UpdateProfilePicture(userId, mediaUrl);
             return Ok(new { MediaUrl = mediaUrl });
