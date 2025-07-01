@@ -99,7 +99,7 @@ namespace Focus.API.Controllers
             try
             {
                 var requesterId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-                await _groupService.Update(id, group, requesterId);
+                await _groupService.UpdateAsync(id, group, requesterId);
                 return Ok("Group updated successfully.");
             }
             catch (UnauthorizedAccessException ex)
@@ -127,7 +127,7 @@ namespace Focus.API.Controllers
             try
             {
                 var requesterId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-                await _groupService.Delete(id, requesterId);
+                await _groupService.DeleteAsync(id, requesterId);
                 return Ok("Group deleted successfully.");
             }
             catch (UnauthorizedAccessException ex)
@@ -166,7 +166,7 @@ namespace Focus.API.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-        
+
         [HttpDelete("{groupId:int}/members/{userId:int}")]
         public async Task<IActionResult> RemoveMemberFromGroup([FromRoute] int groupId, [FromRoute] int userId)
         {
@@ -179,7 +179,9 @@ namespace Focus.API.Controllers
             catch (UnauthorizedAccessException ex)
             {
                 return Unauthorized(ex.Message);
-                
+            }
+        }
+
         // POST api/<GroupController>/5/profile-picture
         [HttpPost("{groupId:int}/profile-picture")]
         public async Task<ActionResult> UploadProfilePicture(int groupId, IFormFile file)

@@ -1,9 +1,11 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Focus.Application.DTO.User;
 using Focus.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Focus.Infra.Repositories;
 using Focus.Application.Specifications;
+using Focus.Domain.Entities;
 
 namespace Focus.API.Controllers;
 
@@ -157,6 +159,8 @@ public class UserController : ControllerBase
 
     // POST api/<User>/join//1/2
     [HttpPost("join/{groupId:int}/{userId:int}")]
+    
+    //Todo: make the logic for verifying if its the user itself on joining and leaving the group.
     public async Task<IActionResult> JoinGroup([FromRoute] int groupId, [FromRoute] int userId)
     {
     try
@@ -176,7 +180,6 @@ public class UserController : ControllerBase
     {
         return StatusCode(500, $"Internal server error: {ex.Message}");
     }
-        }
     }
 
     // PUT api/<User>/toggle-admin/1/2
