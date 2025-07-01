@@ -1,7 +1,9 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Focus.Application.DTO.User;
 using Focus.Application.Services.Interfaces;
 using Focus.Application.Specifications;
+using Focus.Domain.Entities;
 
 namespace Focus.API.Controllers;
 
@@ -154,12 +156,14 @@ public class UserController : ControllerBase
 
     // POST api/<User>/join//1/2
     [HttpPost("join/{groupId:int}/{userId:int}")]
+    
+    //Todo: make the logic for verifying if its the user itself on joining and leaving the group.
     public async Task<IActionResult> JoinGroup([FromRoute] int groupId, [FromRoute] int userId)
     {
         try
         {
             await _userGroupService.AddUserToGroupAsync(userId, groupId);
-            return Ok();
+            return Ok("User successfully added to group.");
         }
         catch (ArgumentException ex)
         {
