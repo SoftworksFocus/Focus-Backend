@@ -14,6 +14,7 @@ namespace Focus.Infra
         public DbSet<Group> Groups { get; set; }
         public DbSet<UserGroup> UserGroups { get; set; }
         public DbSet<UserToken> UserTokens { get; set; }
+        public DbSet<Media> Media { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {  
@@ -26,15 +27,18 @@ namespace Focus.Infra
             
             modelBuilder.Entity<User>().Property( u => u.Username)
                 .IsRequired()
-                .HasMaxLength(50);
+                .HasMaxLength(70);
             modelBuilder.Entity<User>().Property( u => u.Email)
                 .IsRequired()
-                .HasMaxLength(50);
+                .HasMaxLength(250);
             modelBuilder.Entity<User>().Property( u => u.Password)
-                .IsRequired()
-                .HasMaxLength(100);
+                .HasMaxLength(300)
+                .IsRequired();
+                
             modelBuilder.Entity<User>().Property( u => u.Description)
                 .HasMaxLength(250);
+            modelBuilder.Entity<User>().Property(u => u.ProfilePictureUrl)
+                .HasMaxLength(200);
             
             #endregion
             
@@ -45,11 +49,12 @@ namespace Focus.Infra
             modelBuilder.Entity<Group>().Property( g => g.Id)
                 .ValueGeneratedOnAdd();
             
-            
             modelBuilder.Entity<Group>().Property( g => g.Name)
                 .IsRequired()
                 .HasMaxLength(50);
             modelBuilder.Entity<Group>().Property( g => g.Description)
+                .HasMaxLength(200);
+            modelBuilder.Entity<Group>().Property(g => g.ProfilePictureUrl)
                 .HasMaxLength(200);
             #endregion
 
@@ -85,6 +90,29 @@ namespace Focus.Infra
                 .WithMany(u => u.Activities)
                 .HasForeignKey(a => a.UserId);
             
+            #endregion
+            
+            #region Media
+
+            modelBuilder.Entity<Media>().ToTable("Media");
+            modelBuilder.Entity<Media>().HasKey(m => m.Id);
+            modelBuilder.Entity<Media>().Property(m => m.Id)
+                .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<Media>().Property(m => m.Url)
+                .HasMaxLength(300)
+                .IsRequired();
+            
+            modelBuilder.Entity<Media>().Property(m => m.Caption)
+                .HasMaxLength(300)
+                .IsRequired(false);
+
+            modelBuilder.Entity<Activity>()
+                .HasMany(a => a.Media)
+                .WithOne(m => m.Activity)
+                .HasForeignKey(m => m.ActivityId)
+                .OnDelete(DeleteBehavior.Cascade); 
+
             #endregion
 
             #region UserGroup
