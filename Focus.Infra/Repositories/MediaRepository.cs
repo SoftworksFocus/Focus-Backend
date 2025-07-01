@@ -15,6 +15,6 @@ public class MediaRepository : IMediaRepository
     public async Task AddAsync(Media media)
     {
         _context.Media.Add(media);
-        var result = await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync();
     }
 }
