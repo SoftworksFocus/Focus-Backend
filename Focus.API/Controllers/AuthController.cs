@@ -1,5 +1,4 @@
 using Focus.Application.DTO.User;
-using Focus.Application.Services;
 using Focus.Application.Services.Interfaces;
 using Focus.Application.Specifications;
 using Focus.Infra.Repositories.Interfaces;
