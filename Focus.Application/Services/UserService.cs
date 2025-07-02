@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using Focus.Application.DTO.User;
 using Focus.Application.Services.Interfaces;
 using Focus.Domain.Entities;
@@ -10,10 +11,12 @@ namespace Focus.Application.Services;
 public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
+    private readonly IEmailService _emailService;
 
-    public UserService(IUserRepository userRepository)
+    public UserService(IUserRepository userRepository, IEmailService emailService)
     {
         _userRepository = userRepository;
+        _emailService = emailService;
     }
 
     public async Task<List<GetUserDto>?> GetAllAsync(ISpecification<User>? filterSpec = null)
@@ -42,28 +45,33 @@ public class UserService : IUserService
         }
         var user = userDto.ToUser();
         user.Password = BCrypt.Net.BCrypt.HashPassword(userDto.Password);
+        user.IsEmailVerified = false;
+        user.EmailVerificationToken = Convert.ToHexString(RandomNumberGenerator.GetBytes(64));
+        user.EmailVerificationTokenExpiresAt = DateTime.UtcNow.AddHours(24);
         if (!await _userRepository.AddAsync(user))
         {
             throw new Exception("Failed to add user.");
         }
+        if(user.EmailVerificationToken != null)
+        {
+            await _emailService.SendVerificationEmail(user.Email, user.EmailVerificationToken);
+        }
     }
+    
     public async Task Update(int id, UpdateUserDto newUserDto)
     {
         if (newUserDto == null)
         {
             throw new ArgumentNullException(nameof(newUserDto), "User DTO cannot be null.");
         }
-
         var userToUpdate = await _userRepository.GetByIdAsync(id);
         if (userToUpdate == null)
         {
             throw new KeyNotFoundException($"User with id {id} not found on service.");
         }
-
         userToUpdate.Username = newUserDto.Username;
         userToUpdate.Email = newUserDto.Email;
         userToUpdate.Description = newUserDto.Description;
-
         await _userRepository.UpdateAsync(id, userToUpdate);
     }
 

@@ -4,11 +4,13 @@ using Focus.Application.DTO.User;
 using Focus.Application.Services.Interfaces;
 using Focus.Application.Specifications;
 using Focus.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Focus.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 
 public class UserController : ControllerBase
 {
@@ -76,6 +78,7 @@ public class UserController : ControllerBase
 
     // POST api/<User>
     [HttpPost]
+    [AllowAnonymous]
     public async Task<IActionResult> Add([FromBody] CreateUserDto userDto)
     {
         try
@@ -185,8 +188,13 @@ public class UserController : ControllerBase
     {
         try
         {
-            await _userGroupService.ToggleRoleAdmin(userId, groupId);
-            return Ok();
+            var requesterId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            await _userGroupService.ToggleRoleAdmin(userId, groupId, requesterId);
+            return Ok("Admin role toggled successfully.");
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(ex.Message);
         }
         catch (KeyNotFoundException ex)
         {

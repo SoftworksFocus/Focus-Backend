@@ -18,6 +18,12 @@ public class GroupService : IGroupService
     {
         _groupRepository = groupRepository;
     }
+    
+    private async Task<bool> IsUserAdminAsync(int userId, int groupId)
+    {
+        var userGroup = await _userGroupRepository.GetByIdAsync(userId, groupId);
+        return userGroup != null && userGroup.IsAdmin;
+    }
 
     public async Task<GetGroupDto?> GetById(int id)
     {
@@ -48,6 +54,17 @@ public class GroupService : IGroupService
             throw new Exception("Failed to add group.");
         }
     }
+
+    public async Task Update(int id, UpdateGroupDto entity)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task Delete(int id)
+    {
+        throw new NotImplementedException();
+    }
+
     //Todo: fix the methods
     public async Task UpdateAsync(int id, UpdateGroupDto groupDto, int requesterId)
     {

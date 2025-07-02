@@ -3,10 +3,8 @@ using Focus.Domain.Entities;
 
 namespace Focus.Application.Services.Interfaces;
 
-public interface IGroupService
+public interface IGroupService : IService<Group, GetGroupDto, CreateGroupDto, UpdateGroupDto>
 {
-    Task<GetGroupDto?> GetById(int id);
-    Task<List<GetGroupDto>?> GetAllAsync(ISpecification<Group>? filterSpec = null);
     Task<GetGroupDto> CreateGroupAsync(CreateGroupDto createGroupDto, int creatorId);
     Task UpdateAsync(int id, UpdateGroupDto groupDto, int requesterId);
     Task DeleteAsync(int id, int requesterId);
