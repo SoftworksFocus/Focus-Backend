@@ -15,6 +15,12 @@ public class UserGroupService : IUserGroupService
          _userGroupRepository = userGroupRepository;
      }
      
+     private async Task<bool> IsUserAdminAsync(int userId, int groupId)
+     {
+         var userGroup = await _userGroupRepository.GetByIdAsync(userId, groupId);
+         return userGroup != null && userGroup.IsAdmin;
+     }
+     
      public async Task<IEnumerable<SummaryUserDto>?> GetAllMembersFromGroup(int groupId) 
      {
          var groupMembers = await _userGroupRepository.GetAllMembersAsync(groupId);
@@ -56,8 +62,12 @@ public class UserGroupService : IUserGroupService
         await _userGroupRepository.MakeRelationship(relationship);
      }
     
-     public async Task ToggleRoleAdmin(int userId, int groupId)
+     public async Task ToggleRoleAdmin(int userId, int groupId, int requesterId)
      {
+         if (!await IsUserAdminAsync(requesterId, groupId))
+         {
+             throw new UnauthorizedAccessException("Apenas administradores do grupo podem alterar cargos.");
+         }
          var existingUserGroup = await _userGroupRepository.GetByIdAsync(userId, groupId);
          
          if (existingUserGroup == null)
@@ -71,5 +81,23 @@ public class UserGroupService : IUserGroupService
      public async Task RemoveUserFromGroupAsync(int userId, int groupId)
      {
          await _userGroupRepository.DeleteAsync(userId, groupId);
+     }
+
+     public async Task RemoveUserFromGroupAsync(int groupId, int userIdToRemove, int requesterId)
+     {
+         if (!await IsUserAdminAsync(requesterId, groupId))
+         {
+             throw new UnauthorizedAccessException("Only group admins can remove members.");
+         }
+         if (userIdToRemove == requesterId)
+         {
+             throw new InvalidOperationException("You cannot remove yourself with this function. Please use the 'Leave Group' feature.");
+         }
+         var memberToRemove = await _userGroupRepository.GetByIdAsync(userIdToRemove, groupId);
+         if (memberToRemove is null)
+         {
+             throw new KeyNotFoundException("The user to be removed is not a member of this group.");
+         }
+         await _userGroupRepository.DeleteAsync(userIdToRemove, groupId);
      }
 }

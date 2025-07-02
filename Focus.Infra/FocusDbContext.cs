@@ -34,11 +34,22 @@ namespace Focus.Infra
             modelBuilder.Entity<User>().Property( u => u.Password)
                 .HasMaxLength(300)
                 .IsRequired();
-                
             modelBuilder.Entity<User>().Property( u => u.Description)
                 .HasMaxLength(250);
             modelBuilder.Entity<User>().Property(u => u.ProfilePictureUrl)
                 .HasMaxLength(200);
+            modelBuilder.Entity<User>().Property(u => u.PasswordResetToken)
+                .IsRequired(false);
+            modelBuilder.Entity<User>().Property(u => u.PasswordResetTokenExpiresAt)
+                .IsRequired(false);
+            modelBuilder.Entity<User>().Property(u => u.EmailVerificationToken)
+                .IsRequired(false);
+            modelBuilder.Entity<User>().Property(u => u.EmailVerificationTokenExpiresAt)
+                .IsRequired(false);
+            modelBuilder.Entity<User>().Property(u => u.PendingNewEmail)
+                .HasMaxLength(256)
+                .IsRequired(false);
+
             
             #endregion
             
