@@ -14,11 +14,13 @@ public class ActivityService : IActivityService
 {
     private readonly IActivityRepository _activityRepository;
     private readonly IMediaRepository _mediaRepository;
+    private readonly IUserRepository _userRepository;
 
-    public ActivityService(IActivityRepository activityRepository, IMediaRepository mediaRepository)
+    public ActivityService(IActivityRepository activityRepository, IMediaRepository mediaRepository, IUserRepository userRepository)
     {
         _activityRepository = activityRepository;
         _mediaRepository = mediaRepository;
+        _userRepository = userRepository;
     }
 
     public async Task<GetActivityDto?> GetById(int id)
@@ -68,17 +70,54 @@ public class ActivityService : IActivityService
 
         await _activityRepository.UpdateAsync(id, activityToUpdate);
     }
+    
+    public async Task UpdateAsync(int activityId, int requesterId,  UpdateActivityDto newActivityDto)
+    {
+        if (!await IsSameUser(requesterId, activityId))
+        {
+            throw new UnauthorizedAccessException("Only owner can update this activity.");
+        }
+        var activityToUpdate = await _activityRepository.GetByIdAsync(activityId);
+        if (activityToUpdate == null)
+        {
+            throw new KeyNotFoundException($"Activity not found.");
+        }
+        newActivityDto.MapTo(activityToUpdate);
+        await _activityRepository.UpdateAsync(activityId, activityToUpdate);
+    }
 
     public async Task Delete(int id)
     {
         if (!await _activityRepository.DeleteAsync(id))
         {
-            throw new KeyNotFoundException($"Activity with ID {id} not found.");
+            throw new KeyNotFoundException($"Activity not found.");
+        }
+    }
+    
+    public async Task DeleteAsync(int id, int requesterId)
+    {
+        if (!await IsSameUser(requesterId, id))
+        {
+            throw new UnauthorizedAccessException("Only owner can delete this activity.");
+        }
+        if (!await _activityRepository.DeleteAsync(id))
+        {
+            throw new KeyNotFoundException($"Activity not found.");
         }
     }
 
-    public async Task UpdateMedia(int activityId, string mediaUrl, string? caption)
+    private async Task<bool> IsSameUser(int requesterId, int userId)
     {
+        var existingUser = await _userRepository.GetByIdAsync(userId);
+        return existingUser != null && existingUser.Id == (int)requesterId;
+    }
+
+    public async Task UpdateMedia(int activityId, int requesterId, string mediaUrl, string? caption)
+    {
+        if (!await IsSameUser(requesterId, activityId))
+        {
+            throw new UnauthorizedAccessException("Only owner can update media for this activity.");
+        }
         var activity = await _activityRepository.GetByIdAsync(activityId);
         if (activity == null)
         {

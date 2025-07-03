@@ -1,11 +1,10 @@
 
+using System.Security.Claims;
 using Focus.Application.DTO.Activity;
 using Focus.Application.DTO.Media;
-using Focus.Application.Services;
 using Focus.Application.Services.Interfaces;
 using Focus.Application.Specifications;
 using Microsoft.AspNetCore.Mvc;
-using Focus.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Focus.API.Controllers
@@ -75,8 +74,10 @@ namespace Focus.API.Controllers
         {
             try
             {
-                await _activityService.Update(id, activity);
-                return NoContent();
+                var requesterId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+                
+                await _activityService.UpdateAsync(id, requesterId, activity);
+                return Ok("Activity updated successfully.");
             }
             catch (KeyNotFoundException ex)
             {
@@ -110,8 +111,9 @@ namespace Focus.API.Controllers
         {
             try
             {
-                await _activityService.Delete(id);
-                return NoContent();
+                var requesterId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+                await _activityService.DeleteAsync(id, requesterId);
+                return Ok("Activity deleted successfully.");
             }
             catch (KeyNotFoundException ex)
             {
@@ -129,7 +131,7 @@ namespace Focus.API.Controllers
         {
             try
             {
-                // var caption = "debug";
+                var requesterId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
                 if (uploadDto.File.Length == 0)
                 {
                     return BadRequest("File is required.");
@@ -140,7 +142,7 @@ namespace Focus.API.Controllers
                     return StatusCode(500, "Failed to upload media.");
                 }
 
-                await _activityService.UpdateMedia(activityId, mediaUrl, uploadDto.Caption);
+                await _activityService.UpdateMedia(activityId, requesterId, mediaUrl, uploadDto.Caption);
                 return CreatedAtAction(nameof(UploadMedia), 
                     new { activityId }, 
                     new { MediaUrl = mediaUrl, Caption = uploadDto.Caption });

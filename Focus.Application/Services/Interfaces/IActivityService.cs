@@ -11,7 +11,9 @@ public interface IActivityService
     Task<PagedResultDto<GetActivityDto>> GetAllAsync(ISpecification<Activity> filterSpec, int pageNumber, int pageSize);
     Task Add(CreateActivityDto entity);
     Task Update(int id, UpdateActivityDto entity);
+    Task UpdateAsync(int activityId, int requesterId, UpdateActivityDto newActivityDto);
+    
     Task Delete(int id);
-    Task UpdateMedia(int activityId, string mediaUrl, string? caption);
-
+    Task DeleteAsync(int id, int requesterId);
+    Task UpdateMedia(int activityId, int requesterId, string mediaUrl, string? caption);
 }
