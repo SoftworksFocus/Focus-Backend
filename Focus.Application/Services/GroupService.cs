@@ -1,11 +1,10 @@
+using Focus.Application.DTO.Common;
 using System.Security.Claims;
 using Focus.Application.DTO.Group;
 using Focus.Application.Services.Interfaces;
 using Focus.Domain.Entities;
 using Focus.Domain.Specifications;
-using Focus.Infra.Repositories;
 using Focus.Infra.Repositories.Interfaces;
-
 
 namespace Focus.Application.Services;
 
@@ -17,6 +16,7 @@ public class GroupService : IGroupService
     public GroupService(IGroupRepository groupRepository, IUserGroupRepository userGroupRepository)
     {
         _groupRepository = groupRepository;
+        _userGroupRepository = userGroupRepository;
     }
     
     private async Task<bool> IsUserAdminAsync(int userId, int groupId)
@@ -24,7 +24,7 @@ public class GroupService : IGroupService
         var userGroup = await _userGroupRepository.GetByIdAsync(userId, groupId);
         return userGroup != null && userGroup.IsAdmin;
     }
-
+    
     public async Task<GetGroupDto?> GetById(int id)
     {
         var group = await _groupRepository.GetByIdAsync(id);
@@ -32,16 +32,9 @@ public class GroupService : IGroupService
         {
             throw new KeyNotFoundException($"Group with {id} not found.");
         }
-
         return GetGroupDto.FromGroup(group);
     }
-
-    public async Task<List<GetGroupDto>?> GetAllAsync(ISpecification<Group>? filterSpec = null)
-    {
-        var groups = await _groupRepository.ListAsync(filterSpec!);
-        return groups.Select(GetGroupDto.FromGroup).ToList();
-    }
-
+    
     public async Task Add(CreateGroupDto createGroupDto)
     {
         if (createGroupDto == null)
@@ -55,12 +48,12 @@ public class GroupService : IGroupService
         }
     }
 
-    public async Task Update(int id, UpdateGroupDto entity)
+    public Task Update(int id, UpdateGroupDto entity)
     {
         throw new NotImplementedException();
     }
 
-    public async Task Delete(int id)
+    public Task Delete(int id)
     {
         throw new NotImplementedException();
     }
@@ -80,14 +73,6 @@ public class GroupService : IGroupService
             
         groupDto.MapTo(groupToUpdate);
         await _groupRepository.UpdateAsync(id, groupToUpdate);
-    }
-
-    public async Task DeleteAsync(int id, int requesterId)
-    {
-        if (!await _groupRepository.DeleteAsync(id))
-        {
-            throw new Exception($"Group with {id} not Deleted.");
-        }
     }
     
     public async Task<GetGroupDto> CreateGroupAsync(CreateGroupDto createGroupDto, int creatorId)
@@ -111,7 +96,28 @@ public class GroupService : IGroupService
         await _userGroupRepository.MakeRelationship(adminRelationship);
         return GetGroupDto.FromGroup(group);
     }
+    
+    public async Task<PagedResultDto<GetGroupDto>> GetAllAsync(ISpecification<Group> filterSpec, int pageNumber, int pageSize)
+    {
+        var totalCount = await _groupRepository.CountAsync(filterSpec);
+        var groups = await _groupRepository.ListAsync(filterSpec, pageNumber, pageSize);
+        var groupDtos = groups.Select(GetGroupDto.FromGroup).ToList();
+        return new PagedResultDto<GetGroupDto>(groupDtos, totalCount, pageNumber, pageSize);
+    }
 
+    public async Task DeleteAsync(int id, int requesterId)
+    {
+        if (!await IsUserAdminAsync(requesterId, id))
+        {
+            throw new UnauthorizedAccessException("Apenas administradores podem deletar o grupo.");
+        }
+
+        if (!await _groupRepository.DeleteAsync(id))
+        {
+            throw new Exception($"Group with {id} not Deleted.");
+        }
+    }
+    
     public async Task UpdateProfilePicture(int groupId, string mediaUrl)
     {
         var group = await _groupRepository.GetByIdAsync(groupId);
@@ -119,7 +125,6 @@ public class GroupService : IGroupService
         {
             throw new KeyNotFoundException($"Group not found.");
         }
-
         group.ProfilePictureUrl = mediaUrl;
         group.UpdatedAt = DateTime.UtcNow;
         await _groupRepository.UpdateAsync(groupId, group);

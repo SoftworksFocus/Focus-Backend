@@ -21,8 +21,8 @@ public class UserController : ControllerBase
 
     public UserController
     (
-        IUserService userService, 
-        IUserGroupService userGroupService, 
+        IUserService userService,
+        IUserGroupService userGroupService,
         ITokenService tokenService,
         IMediaUploadService mediaUploadService
     )
@@ -38,13 +38,15 @@ public class UserController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetUsers(
         [FromQuery] string? usernameFilter = null,
-        [FromQuery] string? emailFilter = null
+        [FromQuery] string? emailFilter = null,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10
     )
     {
         try
         {
             var spec = new UserFilterSpecification(usernameFilter, emailFilter);
-            var returnUsers = await _userService.GetAllAsync(spec);
+            var returnUsers = await _userService.GetAllAsync(spec, pageNumber, pageSize);
             return Ok(returnUsers);
         }
         catch (KeyNotFoundException ex)
@@ -103,7 +105,7 @@ public class UserController : ControllerBase
         try
         {
             await _userService.Update(id, userDto);
-            return Ok();
+            return Ok("User updated successfully.");
         }
         catch (KeyNotFoundException ex)
         {
@@ -126,7 +128,7 @@ public class UserController : ControllerBase
         try
         {
             await _userService.Delete(id);
-            return Ok();
+            return Ok("User deleted successfully.");
         }
         catch (KeyNotFoundException ex)
         {
@@ -159,8 +161,6 @@ public class UserController : ControllerBase
 
     // POST api/<User>/join//1/2
     [HttpPost("join/{groupId:int}/{userId:int}")]
-    
-    //Todo: make the logic for verifying if its the user itself on joining and leaving the group.
     public async Task<IActionResult> JoinGroup([FromRoute] int groupId, [FromRoute] int userId)
     {
         try
@@ -213,32 +213,7 @@ public class UserController : ControllerBase
         try
         {
             await _userGroupService.RemoveUserFromGroupAsync(userId, groupId);
-            return Ok();
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"Internal server error: {ex.Message}");
-        }
-    }
-    
-    // POST api/<User>/{userId}/profile-picture
-    [HttpPost("{userId:int}/profile-picture")]
-    public async Task<IActionResult> UploadProfilePicture([FromRoute] int userId, /* [FromForm] gives a bug*/IFormFile file)
-    {
-        try
-        {
-            if (file.Length == 0)
-            {
-                return BadRequest("File is empty or not provided.");
-            }
-
-            var mediaUrl = await _mediaUploadService.UploadMediaAsync(file);
-            await _userService.UpdateProfilePicture(userId, mediaUrl);
-            return Ok(new { MediaUrl = mediaUrl });
+            return Ok("Successfully left the group.");
         }
         catch (KeyNotFoundException ex)
         {
@@ -250,3 +225,4 @@ public class UserController : ControllerBase
         }
     }
 }
+    

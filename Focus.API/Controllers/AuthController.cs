@@ -1,4 +1,5 @@
 using Focus.Application.DTO.User;
+using Focus.Application.Services;
 using Focus.Application.Services.Interfaces;
 using Focus.Application.Specifications;
 using Focus.Infra.Repositories.Interfaces;
@@ -39,9 +40,9 @@ public class AuthController : ControllerBase
         {
             return Unauthorized(new { message = ex.Message });
         }
-        catch (Exception)
+        catch (Exception e)
         {
-            return StatusCode(500, "An unexpected error occurred.");
+            return StatusCode(500, "An unexpected error occurred. \n" + e.Message);
         }
     }
 

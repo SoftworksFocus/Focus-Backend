@@ -25,9 +25,21 @@ public class ActivityRepository : IActivityRepository
         return activity;
     }
 
-    public Task<List<Activity>> ListAsync(ISpecification<Activity>? spec)
+    public async Task<List<Activity>> ListAsync(ISpecification<Activity> spec, int pageNumber, int pageSize)
     {
-        return ApplySpecification(spec).ToListAsync();
+        var query = ApplySpecification(spec);
+        return await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+    }
+    
+    public async Task<List<Activity>> ListAsync(ISpecification<Activity> spec, int take)
+    {
+        var query = ApplySpecification(spec);
+        return await query.Take(take).ToListAsync();
+    }
+
+    public async Task<int> CountAsync(ISpecification<Activity> spec)
+    {
+        return await ApplySpecification(spec).CountAsync();
     }
 
     public async Task<bool> AddAsync(Activity activity)

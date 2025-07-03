@@ -1,9 +1,9 @@
+using Focus.Application.DTO.Common;
 using System.Security.Cryptography;
 using Focus.Application.DTO.User;
 using Focus.Application.Services.Interfaces;
 using Focus.Domain.Entities;
 using Focus.Domain.Specifications;
-using Focus.Infra.Repositories;
 using Focus.Infra.Repositories.Interfaces;
 
 namespace Focus.Application.Services;
@@ -19,13 +19,6 @@ public class UserService : IUserService
         _emailService = emailService;
     }
 
-    public async Task<List<GetUserDto>?> GetAllAsync(ISpecification<User>? filterSpec = null)
-    {
-        var users = await _userRepository.ListAsync(filterSpec);
-        var returnUsers = users.Select(GetUserDto.FromUser).ToList();
-        return returnUsers;
-    }
-    
     public async Task<GetUserDto?> GetById(int id)
     {
         var user = await _userRepository.GetByIdAsync(id);
@@ -33,8 +26,8 @@ public class UserService : IUserService
         {
             throw new KeyNotFoundException($"User with id {id} not found.");
         }
-        var returnUser = GetUserDto.FromUser(user);
-        return returnUser;
+
+        return GetUserDto.FromUser(user);
     }
 
     public async Task Add(CreateUserDto userDto)
@@ -43,6 +36,7 @@ public class UserService : IUserService
         {
             throw new ArgumentNullException(nameof(userDto), "User cannot be null.");
         }
+
         var user = userDto.ToUser();
         user.Password = BCrypt.Net.BCrypt.HashPassword(userDto.Password);
         user.IsEmailVerified = false;
@@ -52,26 +46,39 @@ public class UserService : IUserService
         {
             throw new Exception("Failed to add user.");
         }
-        if(user.EmailVerificationToken != null)
+
+        if (user.EmailVerificationToken != null)
         {
             await _emailService.SendVerificationEmail(user.Email, user.EmailVerificationToken);
         }
     }
-    
+
+    public async Task<PagedResultDto<GetUserDto>> GetAllAsync(ISpecification<User> filterSpec, int pageNumber,
+        int pageSize)
+    {
+        var totalCount = await _userRepository.CountAsync(filterSpec);
+        var users = await _userRepository.ListAsync(filterSpec, pageNumber, pageSize);
+        var userDtos = users.Select(GetUserDto.FromUser).ToList();
+        return new PagedResultDto<GetUserDto>(userDtos, totalCount, pageNumber, pageSize);
+    }
+
     public async Task Update(int id, UpdateUserDto newUserDto)
     {
         if (newUserDto == null)
         {
             throw new ArgumentNullException(nameof(newUserDto), "User DTO cannot be null.");
         }
+
         var userToUpdate = await _userRepository.GetByIdAsync(id);
         if (userToUpdate == null)
         {
-            throw new KeyNotFoundException($"User with id {id} not found on service.");
+            throw new KeyNotFoundException($"User not found on service.");
         }
+
         userToUpdate.Username = newUserDto.Username;
         userToUpdate.Email = newUserDto.Email;
         userToUpdate.Description = newUserDto.Description;
+
         await _userRepository.UpdateAsync(id, userToUpdate);
     }
 
@@ -79,7 +86,7 @@ public class UserService : IUserService
     {
         if (!await _userRepository.DeleteAsync(id))
         {
-            throw new Exception($"Failed to delete user with id {id}.");
+            throw new Exception($"Failed to delete user.");
         }
     }
 
@@ -89,11 +96,13 @@ public class UserService : IUserService
         {
             throw new ArgumentNullException(nameof(mediaUrl), "Media URL cannot be null or empty.");
         }
+
         var user = await _userRepository.GetByIdAsync(userId);
         if (user == null)
         {
             throw new KeyNotFoundException($"User not found.");
         }
+
         user.ProfilePictureUrl = mediaUrl;
         user.UpdatedAt = DateTime.UtcNow;
         await _userRepository.UpdateAsync(userId, user);

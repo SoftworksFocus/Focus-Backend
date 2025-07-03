@@ -15,9 +15,15 @@ public class UserRepository : IUserRepository
         _context = context;
     }
     
-    public async Task<List<User>> ListAsync(ISpecification<User>? spec = null)
+    public async Task<List<User>> ListAsync(ISpecification<User> spec, int pageNumber, int pageSize)
     {
-        return await ApplySpecification(spec).ToListAsync();
+        var query = ApplySpecification(spec);
+        return await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+    }
+
+    public async Task<int> CountAsync(ISpecification<User> spec)
+    {
+        return await ApplySpecification(spec).CountAsync();
     }
     
     public async Task<User?> GetByIdAsync(int id)
@@ -70,7 +76,7 @@ public class UserRepository : IUserRepository
         return await ApplySpecification(spec).FirstOrDefaultAsync();
     }
 
-    private IQueryable<User> ApplySpecification(ISpecification<User> spec)
+    private IQueryable<User> ApplySpecification(ISpecification<User>? spec)
     {
         return SpecificationEvaluator<User>.GetQuery(_context.Users.AsQueryable(), spec);
     }

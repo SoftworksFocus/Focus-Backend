@@ -27,16 +27,41 @@ public class GroupController : ControllerBase
 
     // GET: api/<GroupController>
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<GetGroupDto>>> GetGroups(
+    public async Task<IActionResult> GetGroups(
         [FromQuery] string? groupnameFilter = null,
-        [FromQuery] string? descriptionFilter = null
-    )
+        [FromQuery] string? descriptionFilter = null,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10)
     {
         try
         {
             var filterSpec = new GroupFilterSpecification(groupnameFilter, descriptionFilter);
-            var groups = await _groupService.GetAllAsync(filterSpec);
+            var groups = await _groupService.GetAllAsync(filterSpec, pageNumber, pageSize);
             return Ok(groups);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
+    }
+    
+    // PUT api/<GroupController>/5
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> Put(int id, [FromBody] UpdateGroupDto group)
+    {
+        try
+        {
+            var requesterId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            await _groupService.UpdateAsync(id, group, requesterId);
+            return Ok("Group updated successfully.");
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(ex.Message);
         }
         catch (KeyNotFoundException ex)
         {
@@ -88,35 +113,6 @@ public class GroupController : ControllerBase
         catch (Exception ex)
         {
             return StatusCode(500, $"Internal error ocurred {ex.Message}");
-        }
-    }
-
-
-    // PUT api/<GroupController>/5
-    [HttpPut("{id:int}")]
-    public async Task<ActionResult> Put(int id, [FromBody] UpdateGroupDto group)
-    {
-        try
-        {
-            var requesterId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-            await _groupService.UpdateAsync(id, group, requesterId);
-            return Ok("Group updated successfully.");
-        }
-        catch (UnauthorizedAccessException ex)
-        {
-            return Unauthorized(ex.Message);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
-        catch (ArgumentNullException ex)
-        {
-            return BadRequest(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"Internal server error: {ex.Message}");
         }
     }
 

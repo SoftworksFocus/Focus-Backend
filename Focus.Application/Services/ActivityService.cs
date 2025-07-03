@@ -1,13 +1,17 @@
 using Focus.Application.DTO.Activity;
+using Focus.Application.DTO.Common;
 using Focus.Application.Services.Interfaces;
 using Focus.Domain.Entities;
 using Focus.Domain.Specifications;
-using Focus.Infra.Repositories;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Focus.Infra.Repositories.Interfaces;
 
 namespace Focus.Application.Services;
 
-public class ActivityService : IActivityService {
+public class ActivityService : IActivityService
+{
     private readonly IActivityRepository _activityRepository;
     private readonly IMediaRepository _mediaRepository;
 
@@ -24,26 +28,28 @@ public class ActivityService : IActivityService {
         {
             throw new KeyNotFoundException($"Activity with {id} not found");
         }
-        var returnActivity = GetActivityDto.FromActivity(activity);
-        return returnActivity;
+
+        return GetActivityDto.FromActivity(activity);
     }
 
-    public async Task<List<GetActivityDto>?> GetAllAsync(ISpecification<Activity>? filterSpec = null)
+    public async Task<PagedResultDto<GetActivityDto>> GetAllAsync(ISpecification<Activity> filterSpec, int pageNumber,
+        int pageSize)
     {
-        var activities = await _activityRepository.ListAsync(filterSpec);
+        var totalCount = await _activityRepository.CountAsync(filterSpec);
+        var activities = await _activityRepository.ListAsync(filterSpec, pageNumber, pageSize);
         var returnActivities = activities.Select(GetActivityDto.FromActivity).ToList();
-        return returnActivities;
+        return new PagedResultDto<GetActivityDto>(returnActivities, totalCount, pageNumber, pageSize);
     }
 
-    public async Task Add(CreateActivityDto activity)
+    public async Task Add(CreateActivityDto activityDto)
     {
-        if (activity == null)
+        if (activityDto == null)
         {
-            throw new ArgumentNullException(nameof(activity), "Activity cannot be null.");
+            throw new ArgumentNullException(nameof(activityDto), "Activity cannot be null.");
         }
-        
-        var activityEntity = activity.ToActivity(activity.UserId, activity.GroupId);
-        if(!await _activityRepository.AddAsync(activityEntity))
+
+        var activityEntity = activityDto.ToActivity(activityDto.UserId, activityDto.GroupId);
+        if (!await _activityRepository.AddAsync(activityEntity))
         {
             throw new Exception("Failed to add activity.");
         }
@@ -52,26 +58,20 @@ public class ActivityService : IActivityService {
     public async Task Update(int id, UpdateActivityDto newActivityDto)
     {
         var activityToUpdate = await _activityRepository.GetByIdAsync(id);
-    
+
         if (activityToUpdate == null)
         {
             throw new KeyNotFoundException($"Activity with ID {id} not found.");
         }
-    
-        var newActivity = newActivityDto.ToActivity();
-    
-        activityToUpdate.Title = newActivity.Title;
-        activityToUpdate.Description = newActivity.Description;
-        activityToUpdate.StartDate = newActivity.StartDate;
-        activityToUpdate.EndDate = newActivity.EndDate;
-        activityToUpdate.Status = newActivity.Status;
-    
+
+        newActivityDto.MapTo(activityToUpdate);
+
         await _activityRepository.UpdateAsync(id, activityToUpdate);
     }
 
     public async Task Delete(int id)
     {
-        if(!await _activityRepository.DeleteAsync(id))
+        if (!await _activityRepository.DeleteAsync(id))
         {
             throw new KeyNotFoundException($"Activity with ID {id} not found.");
         }
@@ -84,6 +84,7 @@ public class ActivityService : IActivityService {
         {
             throw new KeyNotFoundException($"Activity not found.");
         }
+
         var newMedia = new Media
         {
             Url = mediaUrl,
