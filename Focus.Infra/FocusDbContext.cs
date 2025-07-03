@@ -24,7 +24,6 @@ namespace Focus.Infra
             modelBuilder.Entity<User>().HasKey(u => u.Id);
             modelBuilder.Entity<User>().Property( u => u.Id)
                 .ValueGeneratedOnAdd();
-            
             modelBuilder.Entity<User>().Property( u => u.Username)
                 .IsRequired()
                 .HasMaxLength(50);
@@ -35,8 +34,23 @@ namespace Focus.Infra
                 .IsRequired()
                 .HasMaxLength(100);
             modelBuilder.Entity<User>().Property( u => u.Description)
+                .HasMaxLength(300)
+                .IsRequired();
+            modelBuilder.Entity<User>().Property( u => u.Description)
                 .HasMaxLength(250);
-            
+            modelBuilder.Entity<User>().Property(u => u.ProfilePictureUrl)
+                .HasMaxLength(200);
+            modelBuilder.Entity<User>().Property(u => u.PasswordResetToken)
+                .IsRequired(false);
+            modelBuilder.Entity<User>().Property(u => u.PasswordResetTokenExpiresAt)
+                .IsRequired(false);
+            modelBuilder.Entity<User>().Property(u => u.EmailVerificationToken)
+                .IsRequired(false);
+            modelBuilder.Entity<User>().Property(u => u.EmailVerificationTokenExpiresAt)
+                .IsRequired(false);
+            modelBuilder.Entity<User>().Property(u => u.PendingNewEmail)
+                .HasMaxLength(256)
+                .IsRequired(false);
             #endregion
             
             #region Group
@@ -146,6 +160,7 @@ namespace Focus.Infra
                 {
                     Id = 1,
                     Username = "TestUser",
+                    Description = "This is a test user.",
                     Email = "Test@email.com",
                     Password = "Test123" 
                 });
