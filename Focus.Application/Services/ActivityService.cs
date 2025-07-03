@@ -132,7 +132,7 @@ public class ActivityService : IActivityService
         var activity = await _activityRepository.GetByIdAsync(activityId);
         if (activity == null)
         {
-            throw new KeyNotFoundException($"Activity not found.");
+            throw new KeyNotFoundException("Activity not found.");
         }
         if (!await IsSameUser(requesterId, activity.UserId))
         {
