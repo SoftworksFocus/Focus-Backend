@@ -96,8 +96,8 @@ namespace Focus.API.Controllers
         {
             try
             {
-                await _activityService.Add(activity);
-                return Ok();
+                var addedActivity = await _activityService.AddAsync(activity);
+                return Ok(addedActivity);
             }
             catch (Exception ex)
             {

@@ -43,7 +43,12 @@ public class ActivityService : IActivityService
         return new PagedResultDto<GetActivityDto>(returnActivities, totalCount, pageNumber, pageSize);
     }
 
-    public async Task Add(CreateActivityDto activityDto)
+    public Task Add(CreateActivityDto activityDto)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<GetActivityDto> AddAsync(CreateActivityDto activityDto)
     {
         if (activityDto == null)
         {
@@ -51,10 +56,12 @@ public class ActivityService : IActivityService
         }
 
         var activityEntity = activityDto.ToActivity(activityDto.UserId, activityDto.GroupId);
-        if (!await _activityRepository.AddAsync(activityEntity))
+        var addedActivity = await _activityRepository.AddActivityAsync(activityEntity);
+        if (addedActivity == null)
         {
             throw new Exception("Failed to add activity.");
         }
+        return GetActivityDto.FromActivity(addedActivity);
     }
 
     public async Task Update(int id, UpdateActivityDto newActivityDto)

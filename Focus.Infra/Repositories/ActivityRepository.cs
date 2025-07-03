@@ -42,10 +42,17 @@ public class ActivityRepository : IActivityRepository
         return await ApplySpecification(spec).CountAsync();
     }
 
-    public async Task<bool> AddAsync(Activity activity)
+    public Task<bool> AddAsync(Activity entity)
     {
-        await _context.Activities.AddAsync(activity);
-        return await _context.SaveChangesAsync() > 0;
+        throw new NotImplementedException();
+    }
+
+    public async Task<Activity?> AddActivityAsync(Activity activity)
+    {
+        var activityadded = await _context.Activities.AddAsync(activity);
+        await _context.SaveChangesAsync();
+        var newActivity = await GetByIdAsync(activityadded.Entity.Id);
+        return newActivity;
     }
 
     public async Task UpdateAsync(int id, Activity newActivity)
