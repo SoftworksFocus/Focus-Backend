@@ -96,8 +96,8 @@ namespace Focus.API.Controllers
         {
             try
             {
-                await _activityService.Add(activity);
-                return Ok();
+                var addedActivity = await _activityService.AddAsync(activity);
+                return Ok(addedActivity);
             }
             catch (Exception ex)
             {
@@ -106,13 +106,13 @@ namespace Focus.API.Controllers
         }
 
         // DELETE: api/Activity/5
-        [HttpDelete("{id:int}")]
-        public async Task<ActionResult> Delete([FromRoute]int id)
+        [HttpDelete("{activityId:int}")]
+        public async Task<ActionResult> Delete([FromRoute]int activityId)
         {
             try
             {
                 var requesterId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-                await _activityService.DeleteAsync(id, requesterId);
+                await _activityService.DeleteAsync(activityId, requesterId);
                 return Ok("Activity deleted successfully.");
             }
             catch (KeyNotFoundException ex)

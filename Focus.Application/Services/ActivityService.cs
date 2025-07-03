@@ -43,7 +43,12 @@ public class ActivityService : IActivityService
         return new PagedResultDto<GetActivityDto>(returnActivities, totalCount, pageNumber, pageSize);
     }
 
-    public async Task Add(CreateActivityDto activityDto)
+    public Task Add(CreateActivityDto activityDto)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<GetActivityDto> AddAsync(CreateActivityDto activityDto)
     {
         if (activityDto == null)
         {
@@ -51,10 +56,12 @@ public class ActivityService : IActivityService
         }
 
         var activityEntity = activityDto.ToActivity(activityDto.UserId, activityDto.GroupId);
-        if (!await _activityRepository.AddAsync(activityEntity))
+        var addedActivity = await _activityRepository.AddActivityAsync(activityEntity);
+        if (addedActivity == null)
         {
             throw new Exception("Failed to add activity.");
         }
+        return GetActivityDto.FromActivity(addedActivity);
     }
 
     public async Task Update(int id, UpdateActivityDto newActivityDto)
@@ -94,13 +101,21 @@ public class ActivityService : IActivityService
         }
     }
     
-    public async Task DeleteAsync(int id, int requesterId)
+    public async Task DeleteAsync(int activityId, int requesterId)
     {
-        if (!await IsSameUser(requesterId, id))
+        var activityToDelete = await _activityRepository.GetByIdAsync(activityId);
+        if (activityToDelete != null)
         {
-            throw new UnauthorizedAccessException("Only owner can delete this activity.");
+            if (!await IsSameUser(requesterId, activityToDelete.UserId))
+            {
+                throw new UnauthorizedAccessException("Only owner can delete this activity.");
+            }
+            if (!await _activityRepository.DeleteAsync(activityId))
+            {
+                throw new KeyNotFoundException($"Activity not found.");
+            }
         }
-        if (!await _activityRepository.DeleteAsync(id))
+        else
         {
             throw new KeyNotFoundException($"Activity not found.");
         }
@@ -109,21 +124,20 @@ public class ActivityService : IActivityService
     private async Task<bool> IsSameUser(int requesterId, int userId)
     {
         var existingUser = await _userRepository.GetByIdAsync(userId);
-        return existingUser != null && existingUser.Id == (int)requesterId;
+        return existingUser != null && existingUser.Id == requesterId;
     }
 
     public async Task UpdateMedia(int activityId, int requesterId, string mediaUrl, string? caption)
     {
-        if (!await IsSameUser(requesterId, activityId))
-        {
-            throw new UnauthorizedAccessException("Only owner can update media for this activity.");
-        }
         var activity = await _activityRepository.GetByIdAsync(activityId);
         if (activity == null)
         {
             throw new KeyNotFoundException($"Activity not found.");
         }
-
+        if (!await IsSameUser(requesterId, activity.UserId))
+        {
+            throw new UnauthorizedAccessException("Only owner can update media for this activity.");
+        }
         var newMedia = new Media
         {
             Url = mediaUrl,

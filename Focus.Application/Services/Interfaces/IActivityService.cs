@@ -10,6 +10,7 @@ public interface IActivityService
     Task<GetActivityDto?> GetById(int id);
     Task<PagedResultDto<GetActivityDto>> GetAllAsync(ISpecification<Activity> filterSpec, int pageNumber, int pageSize);
     Task Add(CreateActivityDto entity);
+    Task<GetActivityDto> AddAsync(CreateActivityDto activityDto);
     Task Update(int id, UpdateActivityDto entity);
     Task UpdateAsync(int activityId, int requesterId, UpdateActivityDto newActivityDto);
     

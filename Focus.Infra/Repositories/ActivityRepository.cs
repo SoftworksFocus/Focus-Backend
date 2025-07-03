@@ -15,13 +15,13 @@ public class ActivityRepository : IActivityRepository
         _context = context;
     }
 
-    public async Task<Activity?> GetByIdAsync(int id)
+    public async Task<Activity?> GetByIdAsync(int activityId)
     {
         var  activity = await _context.Activities
             .Include( a => a.User)
             .Include( a => a.Group)
             .Include( a => a.Media)
-            .FirstOrDefaultAsync(a => a.Id == id);
+            .FirstOrDefaultAsync(a => a.Id == activityId);
         return activity;
     }
 
@@ -42,10 +42,17 @@ public class ActivityRepository : IActivityRepository
         return await ApplySpecification(spec).CountAsync();
     }
 
-    public async Task<bool> AddAsync(Activity activity)
+    public Task<bool> AddAsync(Activity entity)
     {
-        await _context.Activities.AddAsync(activity);
-        return await _context.SaveChangesAsync() > 0;
+        throw new NotImplementedException();
+    }
+
+    public async Task<Activity?> AddActivityAsync(Activity activity)
+    {
+        var activityadded = await _context.Activities.AddAsync(activity);
+        await _context.SaveChangesAsync();
+        var newActivity = await GetByIdAsync(activityadded.Entity.Id);
+        return newActivity;
     }
 
     public async Task UpdateAsync(int id, Activity newActivity)
@@ -67,12 +74,12 @@ public class ActivityRepository : IActivityRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<bool> DeleteAsync(int activityId)
     {
-        var activityToDelete = await  _context.Activities.FindAsync(id);
+        var activityToDelete = await  _context.Activities.FindAsync(activityId);
         if (activityToDelete == null)
         {
-            throw new KeyNotFoundException($"User with id {id} not found.");
+            throw new KeyNotFoundException($"User not found.");
         }
         _context.Remove(activityToDelete);
         return await _context.SaveChangesAsync() > 0;
