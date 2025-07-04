@@ -13,7 +13,6 @@ public class UpdateUserDto : PlainUserDto
     {
         user.Username = Username;
         user.Description = Description;
-        user.Email = Email;
         user.UpdatedAt = UpdatedAt;
         // user.GroupIds = GroupIds;
     }

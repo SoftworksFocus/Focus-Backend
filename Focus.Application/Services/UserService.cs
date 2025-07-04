@@ -83,7 +83,6 @@ public class UserService : IUserService
             throw new UnauthorizedAccessException("You can only update your own profile.");
         }
         userToUpdate.Username = newUserDto.Username;
-        userToUpdate.Email = newUserDto.Email;
         userToUpdate.Description = newUserDto.Description;
         await _userRepository.UpdateAsync(userId, userToUpdate);
     }
