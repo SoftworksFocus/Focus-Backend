@@ -104,7 +104,8 @@ public class UserController : ControllerBase
     {
         try
         {
-            await _userService.Update(id, userDto);
+            var requesterId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            await _userService.UpdateAsync(id, requesterId, userDto);
             return Ok("User updated successfully.");
         }
         catch (KeyNotFoundException ex)
