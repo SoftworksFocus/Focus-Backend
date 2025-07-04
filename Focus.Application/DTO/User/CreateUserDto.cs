@@ -3,6 +3,8 @@ using Domain.Entities;
 
 public class CreateUserDto : PlainUserDto
 {
+    public string Email { get; set; } = null!;
+    
     public string Password { get; set; } = null!;
 
     public User ToUser() =>
