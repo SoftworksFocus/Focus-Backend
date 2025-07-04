@@ -224,5 +224,31 @@ public class UserController : ControllerBase
             return StatusCode(500, $"Internal server error: {ex.Message}");
         }
     }
+    
+    // POST api/<User>/{userId}/profile-picture
+    [HttpPost("{userId:int}/profile-picture")]
+    public async Task<IActionResult> UploadProfilePicture([FromRoute] int userId, /* [FromForm] gives a bug*/IFormFile file)
+    {
+        try
+        {
+            var requesterId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            if (file.Length == 0)
+            {
+                return BadRequest("File is empty or not provided.");
+            }
+            var mediaUrl = await _mediaUploadService.UploadMediaAsync(file);
+            await _userService.UpdateProfilePicture(userId,  requesterId, mediaUrl);
+            return Ok(new { MediaUrl = mediaUrl });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
+    }
+
 }
     

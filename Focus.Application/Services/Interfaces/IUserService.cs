@@ -11,6 +11,10 @@ public interface IUserService
     Task<PagedResultDto<GetUserDto>> GetAllAsync(ISpecification<User> filterSpec, int pageNumber, int pageSize);
     Task Add(CreateUserDto entity);
     Task Update(int id, UpdateUserDto entity);
-    Task Delete(int id);
-    Task UpdateProfilePicture(int userId, string mediaUrl);
+    Task UpdateAsync(int userId, int requesterId, UpdateUserDto newUserDto);
+    Task Delete(int userId);
+    Task DeleteAsync(int userId, int requesterId);
+    
+    Task UpdateProfilePicture(int userId, int requesterId, string mediaUrl);
+
 }

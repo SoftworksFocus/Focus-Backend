@@ -62,49 +62,72 @@ public class UserService : IUserService
         return new PagedResultDto<GetUserDto>(userDtos, totalCount, pageNumber, pageSize);
     }
 
-    public async Task Update(int id, UpdateUserDto newUserDto)
+    public Task Update(int id, UpdateUserDto userDto)
+    {
+        throw new NotImplementedException("Update method is not implemented yet.");
+    }
+    
+    public async Task UpdateAsync(int userId, int requesterId, UpdateUserDto newUserDto)
     {
         if (newUserDto == null)
         {
             throw new ArgumentNullException(nameof(newUserDto), "User DTO cannot be null.");
         }
-
-        var userToUpdate = await _userRepository.GetByIdAsync(id);
+        var userToUpdate = await _userRepository.GetByIdAsync(userId);
         if (userToUpdate == null)
         {
             throw new KeyNotFoundException($"User not found on service.");
         }
-
+        if (!await IsSameUser(requesterId, userId))
+        {
+            throw new UnauthorizedAccessException("You can only update your own profile.");
+        }
         userToUpdate.Username = newUserDto.Username;
         userToUpdate.Email = newUserDto.Email;
         userToUpdate.Description = newUserDto.Description;
-
-        await _userRepository.UpdateAsync(id, userToUpdate);
+        await _userRepository.UpdateAsync(userId, userToUpdate);
     }
 
-    public async Task Delete(int id)
+    public Task Delete(int userId)
     {
-        if (!await _userRepository.DeleteAsync(id))
+        throw new NotImplementedException("Delete method is not implemented yet.");
+    }
+    
+    public async Task DeleteAsync(int userId, int requesterId)
+    {
+        if (!await IsSameUser(requesterId, userId))
+        {
+            throw new UnauthorizedAccessException("You can only delete your own account.");
+        }
+        if (!await _userRepository.DeleteAsync(userId))
         {
             throw new Exception($"Failed to delete user.");
         }
     }
 
-    public async Task UpdateProfilePicture(int userId, string mediaUrl)
+    public async Task UpdateProfilePicture(int userId, int requesterId, string mediaUrl)
     {
         if (string.IsNullOrEmpty(mediaUrl))
         {
             throw new ArgumentNullException(nameof(mediaUrl), "Media URL cannot be null or empty.");
         }
-
         var user = await _userRepository.GetByIdAsync(userId);
         if (user == null)
         {
             throw new KeyNotFoundException($"User not found.");
         }
-
+        if (!await IsSameUser(requesterId, userId))
+        {
+            throw new UnauthorizedAccessException("You can only update your own profile picture.");
+        }
         user.ProfilePictureUrl = mediaUrl;
         user.UpdatedAt = DateTime.UtcNow;
         await _userRepository.UpdateAsync(userId, user);
+    }
+    
+    private async Task<bool> IsSameUser(int requesterId, int userId)
+    {
+        var existingUser = await _userRepository.GetByIdAsync(userId);
+        return existingUser != null && existingUser.Id == requesterId;
     }
 }
