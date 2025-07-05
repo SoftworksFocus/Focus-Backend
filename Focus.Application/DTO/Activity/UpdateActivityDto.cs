@@ -10,7 +10,7 @@ public class UpdateActivityDto : PlainActivityDto
     {
         updateActivity.Title = Title;
         updateActivity.Description = Description;
-        updateActivity.StartDate = Functions.ParseAndConvertToUtc(StartDate, nameof(StartDate)); //send this to service
+        updateActivity.StartDate = Functions.ParseAndConvertToUtc(StartDate, nameof(StartDate)); 
         updateActivity.EndDate = Functions.ParseAndConvertToUtc(EndDate, nameof(EndDate));
         updateActivity.Status = Status;
         updateActivity.UpdatedAt = UpdatedAt;

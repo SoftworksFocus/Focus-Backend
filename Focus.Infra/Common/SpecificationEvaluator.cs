@@ -15,6 +15,14 @@ namespace Focus.Infra.Common
             query = query.Where(spec.Criteria);
             query = spec.Includes.Aggregate(query, 
                 (current, include) => current.Include(include));
+            if (spec.OrderBy != null)
+            {
+                query = query.OrderBy(spec.OrderBy);
+            }
+            else if (spec.OrderByDescending != null)
+            {
+                query = query.OrderByDescending(spec.OrderByDescending);
+            }
             return query;
         }
     }

@@ -17,7 +17,9 @@ public class CreateActivityDto : PlainActivityDto
             EndDate = Functions.ParseAndConvertToUtc(EndDate, nameof(EndDate)),
             Status = Status,
             UserId = userId,
-            GroupId = groupId
+            GroupId = groupId,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
         };
     }
 }

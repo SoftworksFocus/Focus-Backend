@@ -22,27 +22,16 @@ namespace Focus.Application.Specifications
         private static Expression<Func<Activity, bool>> BuildPredicate(int currentUserId, List<int> memberGroupIds, DateTime? cursor)
         {
             var predicate = PredicateBuilder.New<Activity>(false);
-
             predicate = predicate.Or(a => a.UserId == currentUserId);
-
             if (memberGroupIds.Any())
             {
                 predicate = predicate.Or(a => a.GroupId.HasValue && memberGroupIds.Contains(a.GroupId.Value));
             }
-
             if (cursor.HasValue)
             {
                 predicate = predicate.And(a => a.CreatedAt < cursor.Value);
             }
-
             return predicate;
-        }
-
-        public Expression<Func<Activity, object>> OrderByDescending { get; private set; }
-        
-        protected void ApplyOrderByDescending(Expression<Func<Activity, object>> orderByDescExpression)
-        {
-            OrderByDescending = orderByDescExpression;
         }
     }
 }
