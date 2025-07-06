@@ -142,7 +142,7 @@ namespace Focus.API.Controllers
                     return StatusCode(500, "Failed to upload media.");
                 }
 
-                await _activityService.UpdateMedia(activityId, requesterId, mediaUrl, uploadDto.Caption);
+                await _activityService.UpdateMedia(activityId, requesterId, mediaUrl);
                 return CreatedAtAction(nameof(UploadMedia), 
                     new { activityId }, 
                     new { MediaUrl = mediaUrl, Caption = uploadDto.Caption });

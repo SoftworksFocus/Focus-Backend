@@ -16,5 +16,5 @@ public interface IActivityService
     
     Task Delete(int id);
     Task DeleteAsync(int id, int requesterId);
-    Task UpdateMedia(int activityId, int requesterId, string mediaUrl, string? caption);
+    Task UpdateMedia(int activityId, int requesterId, string mediaUrl);
 }

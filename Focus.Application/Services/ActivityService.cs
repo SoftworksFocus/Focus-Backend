@@ -127,7 +127,7 @@ public class ActivityService : IActivityService
         return existingUser != null && existingUser.Id == requesterId;
     }
 
-    public async Task UpdateMedia(int activityId, int requesterId, string mediaUrl, string? caption)
+    public async Task UpdateMedia(int activityId, int requesterId, string mediaUrl)
     {
         var activity = await _activityRepository.GetByIdAsync(activityId);
         if (activity == null)
@@ -141,7 +141,6 @@ public class ActivityService : IActivityService
         var newMedia = new Media
         {
             Url = mediaUrl,
-            Caption = caption,
             ActivityId = activityId,
             DisplayOrder = (activity.Media?.Count ?? 0) + 1,
             CreatedAt = DateTime.UtcNow,

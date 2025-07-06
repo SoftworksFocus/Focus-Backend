@@ -112,10 +112,6 @@ namespace Focus.Infra
             modelBuilder.Entity<Media>().Property(m => m.Url)
                 .HasMaxLength(300)
                 .IsRequired();
-            
-            modelBuilder.Entity<Media>().Property(m => m.Caption)
-                .HasMaxLength(300)
-                .IsRequired(false);
 
             modelBuilder.Entity<Activity>()
                 .HasMany(a => a.Media)
