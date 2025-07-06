@@ -80,14 +80,14 @@ public class ActivityService : IActivityService
     
     public async Task UpdateAsync(int activityId, int requesterId,  UpdateActivityDto newActivityDto)
     {
-        if (!await IsSameUser(requesterId, activityId))
-        {
-            throw new UnauthorizedAccessException("Only owner can update this activity.");
-        }
         var activityToUpdate = await _activityRepository.GetByIdAsync(activityId);
         if (activityToUpdate == null)
         {
             throw new KeyNotFoundException($"Activity not found.");
+        }
+        if (!await IsSameUser(requesterId, activityToUpdate.UserId))
+        {
+            throw new UnauthorizedAccessException("Only owner can update this activity.");
         }
         newActivityDto.MapTo(activityToUpdate);
         await _activityRepository.UpdateAsync(activityId, activityToUpdate);
