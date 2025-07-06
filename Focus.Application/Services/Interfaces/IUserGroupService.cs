@@ -6,7 +6,7 @@ namespace Focus.Application.Services.Interfaces
 {
     public interface IUserGroupService
     {
-        public Task<List<Task<MemberDto>>?> GetAllMembersFromGroup(int groupId);
+        public Task<List<MemberDto>?> GetAllMembersFromGroup(int groupId);
         public Task<IEnumerable<SummaryGroupDto>?> GetAllGroupsFromUser(int userId);
         public Task<UserGroup?> GetById(int userId, int groupId);
         public Task AddUserToGroupAsync(int userId, int groupId, bool isAdmin = false);
