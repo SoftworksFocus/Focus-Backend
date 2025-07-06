@@ -21,10 +21,12 @@ public class UserGroupService : IUserGroupService
          return userGroup != null && userGroup.IsAdmin;
      }
      
-     public async Task<IEnumerable<SummaryUserDto>?> GetAllMembersFromGroup(int groupId) 
+     public async Task<List<Task<MemberDto>>?> GetAllMembersFromGroup(int groupId) 
      {
          var groupMembers = await _userGroupRepository.GetAllMembersAsync(groupId);
-         var returnUsersGroups = groupMembers.Select(SummaryUserDto.FromUser).ToList();
+         var returnUsersGroups = groupMembers?.Select(
+             async u => MemberDto.FromUser(u, await IsUserAdminAsync(u.Id, groupId)))
+             .ToList();
          return returnUsersGroups;
      }
      
