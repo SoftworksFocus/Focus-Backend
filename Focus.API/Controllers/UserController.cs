@@ -128,7 +128,8 @@ public class UserController : ControllerBase
     {
         try
         {
-            await _userService.Delete(id);
+            var requesterId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            await _userService.DeleteAsync(requesterId: requesterId, userId: id);
             return Ok("User deleted successfully.");
         }
         catch (KeyNotFoundException ex)
