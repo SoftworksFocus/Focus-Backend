@@ -2,7 +2,6 @@ namespace Focus.Application.DTO.Group;
 using Focus.Domain.Entities;
 public class SummaryGroupDto : PlainGroupDto
 {
-    public int Id { get; set; }
     public static SummaryGroupDto FromGroup(Group group) =>
         new SummaryGroupDto
         {
