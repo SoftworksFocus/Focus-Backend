@@ -4,7 +4,6 @@ public class GetUserDto : PlainUserDto
 {
     public int Id { get; set; }
     public string Email { get; set; } = null!;
-    
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public IEnumerable<Group> Groups { get; set; } = null!;
@@ -17,7 +16,7 @@ public class GetUserDto : PlainUserDto
             ProfilePictureUrl = user.ProfilePictureUrl,
             Username = user.Username,
             Email = user.Email,
-            Description = user.Description,
+            Description = user.Description ?? "",
             CreatedAt = user.CreatedAt,
             UpdatedAt = user.UpdatedAt,
             Groups = user.Groups?.Select(ug => ug.Group) ?? new List<Group>(),

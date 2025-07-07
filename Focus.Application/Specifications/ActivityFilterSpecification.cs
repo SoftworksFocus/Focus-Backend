@@ -7,14 +7,14 @@ namespace Focus.Application.Specifications
 {
     public class ActivityFilterSpecification : BaseSpecification<Activity>
     {
-        public ActivityFilterSpecification(string? ownerUsername, int? groupId)
-            : base(BuildPredicate(ownerUsername, groupId))
+        public ActivityFilterSpecification(int? ownerId, string? ownerUsername, int? groupId)
+            : base(BuildPredicate(ownerId, ownerUsername, groupId))
         {
             AddInclude(a => a.User);
             AddInclude(a => a.Group);
             AddInclude(a => a.Media);
         }
-        
+
         // public ActivityFilterSpecification(int ownerId) : base(BuildPredicate(ownerId))
         // {
         //     throw new NotImplementedException();
@@ -29,10 +29,15 @@ namespace Focus.Application.Specifications
             }
             return predicate;
         }
-        
-        private static Expression<Func<Activity, bool>> BuildPredicate(string? ownerUsername, int? groupId)
+
+        private static Expression<Func<Activity, bool>> BuildPredicate(int? ownerId, string? ownerUsername, int? groupId)
         {
             var predicate = PredicateBuilder.New<Activity>(true);
+            if (ownerId.HasValue)
+            {
+                predicate = predicate.And(a => a.UserId == ownerId.Value);
+            }
+
             if (!string.IsNullOrEmpty(ownerUsername))
             {
                 predicate = predicate.And(a => a.User.Username.Contains(ownerUsername));

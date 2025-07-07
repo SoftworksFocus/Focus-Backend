@@ -26,6 +26,7 @@ namespace Focus.API.Controllers
         // GET: api/Activity
         [HttpGet]
         public async Task<ActionResult<IEnumerable<GetActivityDto>>> GetActivities(
+            [FromQuery] int? ownerIdFilter = null,
             [FromQuery] string? ownerUsernameFilter = null,
             [FromQuery] int? groupId = null,
             [FromQuery] int pageNumber = 1,
@@ -34,7 +35,7 @@ namespace Focus.API.Controllers
         {
             try
             {
-                var spec = new ActivityFilterSpecification(ownerUsernameFilter, groupId);
+                var spec = new ActivityFilterSpecification(ownerIdFilter, ownerUsernameFilter, groupId);
                 var activities = await _activityService.GetAllAsync(spec, pageNumber, pageSize);
                 return Ok(activities);
             }
@@ -75,7 +76,7 @@ namespace Focus.API.Controllers
             try
             {
                 var requesterId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-                
+
                 await _activityService.UpdateAsync(id, requesterId, activity);
                 return Ok("Activity updated successfully.");
             }
@@ -124,7 +125,7 @@ namespace Focus.API.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-        
+
         // POST: api/Activity/{activityId:int}/upload-media
         [HttpPost("{activityId:int}/upload-media")]
         public async Task<IActionResult> UploadMedia([FromRoute] int activityId, [FromForm] UploadMediaDto uploadDto)
@@ -143,8 +144,8 @@ namespace Focus.API.Controllers
                 }
 
                 await _activityService.UpdateMedia(activityId, requesterId, mediaUrl);
-                return CreatedAtAction(nameof(UploadMedia), 
-                    new { activityId }, 
+                return CreatedAtAction(nameof(UploadMedia),
+                    new { activityId },
                     new { MediaUrl = mediaUrl, Caption = uploadDto.Caption });
             }
             catch (KeyNotFoundException ex)

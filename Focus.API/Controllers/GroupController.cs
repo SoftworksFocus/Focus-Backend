@@ -103,11 +103,8 @@ public class GroupController : ControllerBase
             {
                 return Unauthorized("Creator of the group not found.");
             }
-
             var creatorId = int.Parse(creatorIdClaim.Value);
-
             var createdGroup = await _groupService.CreateGroupAsync(groupDto, creatorId);
-
             return CreatedAtAction(nameof(GetById), new { id = createdGroup.Id }, createdGroup);
         }
         catch (Exception ex)
